@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"target": "es2018",
+		"module": "commonjs",
+		"sourceMap": true,
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"esModuleInterop": false,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"lib": [
+			"dom",
+			"es6"
+		]
+	},
+	"include": [
+		"src/**/*.ts",
+		"thirdparty.d.ts",
+		"global.d.ts"
+	],
+	"exclude": [
+		"node_modules/**/*"
+	]
+}

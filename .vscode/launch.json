@@ -1,0 +1,15 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Build & Launch",
+            "program": "${workspaceFolder}/src/app.ts",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "args": [
+                "--trace-warnings"
+            ]
+        }
+    ]
+}
