@@ -1,25 +1,12 @@
-import { validateContext } from "./lib/validate-context";
+import { Prepare } from "./lib/prepare";
 import { Abbot } from "./lib/abbot";
 
 const context = {
 	mongooseInstance: undefined
 };
 
+const prepare = Prepare(context);
+
 const abbot = Abbot(context);
-
-const prepare = function ({
-	mongooseInstance
-}) {
-	Object.assign(
-		context,
-		{
-			mongooseInstance
-		}
-	);
-
-	validateContext(context);
-
-	return abbot;
-}
 
 export = { abbot, prepare };

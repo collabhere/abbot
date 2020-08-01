@@ -10,7 +10,13 @@
     "type": "git",
     "url": "git+https://github.com/wheredevsdev/abbot.git"
   },
-  "author": "Shashank Kaul",
+  "contributors": [
+	  {
+		  "name": "Shashank Kaul",
+		  "email": "kaulshashank96@gmail.com",
+		  "url": "https://www.github.com/kaulshashank"
+	  }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wheredevsdev/abbot/issues"

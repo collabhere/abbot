@@ -1,38 +1,48 @@
 import { Mongoose } from "mongoose";
 
-import { writeFile, mkdir } from '../utils/fs';
+import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from "fs";
+import { STORE_LOCATION } from "../utils/constants";
+import { fstat } from "fs";
+
+type ListIndexesResult = {
+	name: string;
+	key: string;
+	ns: string;
+}[];
 
 async function fetch(
-	mongoose: Mongoose
+	mongoose: Mongoose,
+	collections: string[]
 ) {
-	const collections = await mongoose.connection.db.listCollections().toArray();
+	if (!existsSync(STORE_LOCATION)) {
+		await mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
+	}
 
-	await mkdir('indexStore', { recursive: true });
+	await Promise.all(collections.map(async collection => {
+		const indexes = await mongoose.model(collection).listIndexes() as unknown as ListIndexesResult;
 
-	await Promise.all(collections.map(async (collection) => {
-		const indexes: any = await mongoose.model(collection.name, new mongoose.Schema({}, { strict: false })).listIndexes();
-		const collName = indexes[0].ns.split('.')[1];
-		const indexObj = new Object();
-		const finalArr = indexes.map((index) => {
-			return { key: index.key, name: index.name };
-		});
+		const obj = {
+			[collection]: indexes.map(({ key, name }) => ({ key, name }))
+		};
 
-		indexObj[collName] = finalArr;
-
-		let finalJson = JSON.stringify(indexObj);
-
-		await writeFile(`indexStore/${collName}.json`, finalJson);
+		await writeFile(`${STORE_LOCATION}/${collection}.json`, JSON.stringify(obj));
 	}));
 }
 
 export async function getIndexes(
-	client: Mongoose
+	client: Mongoose,
+	collections: string[] | undefined
 ) {
+	if (!collections || collections.length === 0) {
+		throw new Error("[prepare][get-indexes] Please provide a list of collections to test against.");
+	}
+
 	if (client.connection.readyState !== 1) { // Not connected
 		client.connection.on("connect", async function () {
-			await fetch(client);
+			await fetch(client, collections);
 		});
 	} else {
-		await fetch(client);
+		await fetch(client, collections);
 	}
 }

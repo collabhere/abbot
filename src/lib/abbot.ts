@@ -6,7 +6,6 @@ interface AbbotOptions {
 export const Abbot = context => (
 	opts: AbbotOptions
 ) => {
-
 	return {
 		exec: () => { }
 	};

@@ -6,10 +6,13 @@ import { Mongoose } from "mongoose";
 
 const instance = new Mongoose();
 
-const abbot = Abbot.prepare({ mongooseInstance: instance });
-// OR const { abbot } = Abbot;
-
 (async function main() {
+	const abbot = await Abbot.prepare({
+		mongooseInstance: instance,
+		collections: ["unicorns"]
+	});
+	// OR const { abbot } = Abbot;
+
 	await abbot({
 		collection: "unicorns",
 		query: {
