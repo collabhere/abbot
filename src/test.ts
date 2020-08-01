@@ -10,7 +10,7 @@ const abbot = Abbot.prepare({ mongooseInstance: instance });
 // OR const { abbot } = Abbot;
 
 (async function main() {
-	abbot({
+	await abbot({
 		collection: "unicorns",
 		query: {
 			shiny: true

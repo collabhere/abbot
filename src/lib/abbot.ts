@@ -3,7 +3,7 @@ interface AbbotOptions {
 	query: any;
 }
 
-export const Abbot = state => (
+export const Abbot = context => (
 	opts: AbbotOptions
 ) => {
 
