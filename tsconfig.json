@@ -5,7 +5,7 @@
 		"sourceMap": true,
 		"outDir": "dist",
 		"resolveJsonModule": true,
-		"esModuleInterop": false,
+		"esModuleInterop": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"lib": [

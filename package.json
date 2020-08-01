@@ -1,0 +1,26 @@
+{
+  "name": "abbot",
+  "version": "0.0.1",
+  "description": "Write better MongoDB queries",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wheredevsdev/abbot.git"
+  },
+  "author": "Shashank Kaul",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wheredevsdev/abbot/issues"
+  },
+  "homepage": "https://github.com/wheredevsdev/abbot#readme",
+  "dependencies": {
+    "mongoose": "^5.9.27"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.7.34",
+    "@types/node": "^14.0.27"
+  }
+}
