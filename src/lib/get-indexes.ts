@@ -1,9 +1,7 @@
 import { Mongoose } from "mongoose";
-
-import { writeFile, mkdir } from 'fs/promises';
+import {promises as fs} from 'fs';
 import { existsSync } from "fs";
 import { STORE_LOCATION } from "../utils/constants";
-import { fstat } from "fs";
 
 type ListIndexesResult = {
 	name: string;
@@ -16,7 +14,7 @@ async function fetch(
 	collections: string[]
 ) {
 	if (!existsSync(STORE_LOCATION)) {
-		await mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
+		await fs.mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
 	}
 
 	await Promise.all(collections.map(async collection => {
@@ -26,7 +24,7 @@ async function fetch(
 			[collection]: indexes.map(({ key, name }) => ({ key, name }))
 		};
 
-		await writeFile(`${STORE_LOCATION}/${collection}.json`, JSON.stringify(obj));
+		await fs.writeFile(`${STORE_LOCATION}/${collection}.json`, JSON.stringify(obj));
 	}));
 }
 
