@@ -9,16 +9,32 @@ export const analyseUsableIndexes = async (
 
     const indexes = await import(`${STORE_LOCATION}/${collection}.json`);
 
-    indexes[collection].forEach((index: {key: {}, name: string}) => {
-        console.log(index.name + ':');
+    const indexDetailsArr = indexes[collection].map((index: {key: {}, name: string}) => {
+        const indexDetailsObj = new Object();
+        indexDetailsObj['name'] = index.name;
         if (Object.keys(query).includes(Object.keys(index.key)[0])) {
-            const queryFieldTypes = getQueryFieldTypes (query, sort);
-            const coverage = getCoverage(index.key, queryFieldTypes);
-            console.log(`${coverage.coveredCount} out of ${coverage.totalCount} fields in the index cover this query`);
-            if (!checkESR(index.key, queryFieldTypes)) console.log("Index does not follow ESR!");
+            const queryFieldTypes = getQueryFieldTypes (query, sort); 
+            indexDetailsObj['coverage'] = getCoverage(index.key, queryFieldTypes);
+            indexDetailsObj['isEsrSupported'] = checkESR(index.key, queryFieldTypes);
         } else {
-            console.log("There's no index supporting this query!")
+            indexDetailsObj['coverage'] = null;
+            indexDetailsObj['isEsrSupported'] = false;
         }
+        return indexDetailsObj;
+    });
+
+    let bestIndexes = getIndexesWithMaxCoverage(indexDetailsArr);
+
+    bestIndexes.forEach((index: {name: string, isEsrSupported: boolean, coverage: any}) => {
+
+        if (index.coverage.uncoveredFields && index.coverage.uncoveredFields.length > 0) {
+            console.log(index.name);
+            console.log(`Add the following fields to your query to use this index better:  ${index.coverage.uncoveredFields}`);
+        }
+        if (!index.isEsrSupported) {
+            console.log('This index does not follow ESR rule for this query!')
+        }
+        console.log('\n');
     });
 }
 
@@ -76,16 +92,46 @@ const checkESR = (
 const getCoverage = (
     indexKeys: {}, 
     queryFieldTypes: {equality: string[], sort: string[], range: string[]}
-): {coveredCount: number, totalCount: number} => {
+): {coveredCount: number, totalCount: number, uncoveredFields: string[]} => {
 
-    let coveredCount: number = 0, totalCount: number = 0;
+    let coveredCount: number = 0, totalCount: number = 0, 
+        uncoveredStreak: boolean = true, unconfirmedIndex: number = -1,
+        uncoveredCount:number = 0;
+    const uncoveredFields: string[] = [];
 
     for (let indexKey in indexKeys) {
         totalCount += 1;
         if (queryFieldTypes.equality.includes(indexKey)
                 || queryFieldTypes.range.includes(indexKey)
-                || queryFieldTypes.sort.includes(indexKey)) coveredCount += 1;
+                || queryFieldTypes.sort.includes(indexKey)) {
+
+            coveredCount += 1;
+            uncoveredStreak = false; 
+            unconfirmedIndex = -1;       
+        } else {
+            uncoveredCount += 1;
+            if (!uncoveredStreak) {
+                unconfirmedIndex = uncoveredCount - 1;
+            }
+            uncoveredFields.push(indexKey);
+
+            uncoveredStreak = true;
+        }
     }
 
-    return {coveredCount, totalCount};
+    if (unconfirmedIndex !== -1) uncoveredFields.splice(unconfirmedIndex, uncoveredFields.length - unconfirmedIndex);
+
+    return {coveredCount, totalCount, uncoveredFields};
+}
+
+const getIndexesWithMaxCoverage = (indexArr: {name: string, isEsrSupported: boolean, coverage: any}[]) => {
+
+    let maxCoverageCount = 0;
+    indexArr.forEach((index) => {
+        if (index.coverage && index.coverage.coveredCount > maxCoverageCount) {
+            maxCoverageCount = index.coverage.coveredCount;
+        }
+    });
+
+    return indexArr.filter(index => index.coverage && index.coverage.coveredCount === maxCoverageCount);
 }
