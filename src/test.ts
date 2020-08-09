@@ -26,13 +26,10 @@ const instance = new Mongoose();
 	// Test for index analysis
 	const query = {
 		flgUseStatus: 1,
-		company: 'someCompany',
-		status: {$in: ['abc', 'def']}
+		company: {$in: ['abc', 'def']},
+		status: {$in: ['abc', 'def']},
+		cadenceId: 'id'
 	}
 
-	const sort = {
-		username: 1
-	}
-
-	await analyseUsableIndexes("mailtrackingdetails", query, sort, null);
+	await analyseUsableIndexes("mailtrackingdetails", query, null, null);
 })();

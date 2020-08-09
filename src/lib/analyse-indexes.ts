@@ -12,28 +12,49 @@ export const analyseUsableIndexes = async (
     const indexDetailsArr = indexes[collection].map((index: {key: {}, name: string}) => {
         const indexDetailsObj = new Object();
         indexDetailsObj['name'] = index.name;
+        indexDetailsObj['keys'] = index.key;
         if (Object.keys(query).includes(Object.keys(index.key)[0])) {
             const queryFieldTypes = getQueryFieldTypes (query, sort); 
             indexDetailsObj['coverage'] = getCoverage(index.key, queryFieldTypes);
-            indexDetailsObj['isEsrSupported'] = checkESR(index.key, queryFieldTypes);
+            indexDetailsObj['keyWiseDetails'] = getPositionDetails(index.key, queryFieldTypes);
+            indexDetailsObj['fieldStreak'] = getStreak(index.key, queryFieldTypes);
         } else {
             indexDetailsObj['coverage'] = null;
-            indexDetailsObj['isEsrSupported'] = false;
+            indexDetailsObj['keyWiseDetails'] = null;
+            indexDetailsObj['fieldStreak'] = null;
         }
         return indexDetailsObj;
     });
 
     let bestIndexes = getIndexesWithMaxCoverage(indexDetailsArr);
 
-    bestIndexes.forEach((index: {name: string, isEsrSupported: boolean, coverage: any}) => {
+    bestIndexes.forEach(
+        (index: {
+            name: string, 
+            keys: {},
+            coverage: any, 
+            fieldStreak: number, 
+            keyWiseDetails: {rangeHops: number[], equalityMax: number}
+        }) => {
 
-        if (index.coverage.uncoveredFields && index.coverage.uncoveredFields.length > 0) {
+            const rangeFieldHops = index.keyWiseDetails.rangeHops.filter(key => key < index.keyWiseDetails.equalityMax);
+
+            let hop: number = 0, rangeFields: string[] = [];
+            for (let key in index.keys) {
+                if (rangeFieldHops.includes(hop)) {
+                    rangeFields.push(key);
+                }
+                hop += 1;
+            } 
+
             console.log(index.name);
-            console.log(`Add the following fields to your query to use this index better:  ${index.coverage.uncoveredFields}`);
-        }
-        if (!index.isEsrSupported) {
-            console.log('This index does not follow ESR rule for this query!')
-        }
+            if (index.coverage.uncoveredFields && index.coverage.uncoveredFields.length > 0) 
+                console.log(`Add the following fields to your query to use this index better:  ${index.coverage.uncoveredFields}`);
+
+            if (rangeFields && rangeFields.length > 0)
+                console.log(`The following range fields can be changed to equality fields: ${rangeFields}`);
+
+
         console.log('\n');
     });
 }
@@ -68,26 +89,46 @@ const getQueryFieldTypes = (
 } 
 
 
-const checkESR = (
+const getPositionDetails = (
     indexKeys: {}, 
     queryFieldTypes: {equality: string[], sort: string[], range: string[]}
-) : boolean => {
+) : {rangeHops: number[], equalityMax: number} => {
 
-    let sortFlag: boolean, rangeFlag: boolean; 
+    let equalityMax = -1, currentHop = 0;
+    const rangeHops: number[] = [];
 
     for (let indexKey in indexKeys) {
         if (queryFieldTypes.equality.includes(indexKey)) {
-            if (rangeFlag || sortFlag) return false;
+            if (currentHop > equalityMax) equalityMax = currentHop;
         } else if (queryFieldTypes.sort.includes(indexKey)) {
-            sortFlag = true;
-            if (rangeFlag) return false;
+            // ??
         } else if (queryFieldTypes.range.includes(indexKey)) {
-            rangeFlag = true;
+            rangeHops.push(currentHop);
         }
+        currentHop += 1;
     }
 
-    return true;
+    return {rangeHops, equalityMax};
 }
+
+
+const getStreak = (
+    indexKeys: {},
+    queryFieldTypes: {equality: string[], sort: string[], range: string[]}
+) => {
+    let currentStreak = 0;
+    for (let indexKey in indexKeys) {
+        if (queryFieldTypes.equality.includes(indexKey)
+                || queryFieldTypes.range.includes(indexKey)
+                || queryFieldTypes.sort.includes(indexKey)) {
+            
+            currentStreak += 1;
+        } else {
+            return currentStreak;
+        }
+    }
+}
+
 
 const getCoverage = (
     indexKeys: {}, 
@@ -124,7 +165,8 @@ const getCoverage = (
     return {coveredCount, totalCount, uncoveredFields};
 }
 
-const getIndexesWithMaxCoverage = (indexArr: {name: string, isEsrSupported: boolean, coverage: any}[]) => {
+
+const getIndexesWithMaxCoverage = (indexArr: {name: string, coverage: any, fieldStreak: number}[]) => {
 
     let maxCoverageCount = 0;
     indexArr.forEach((index) => {
@@ -133,5 +175,6 @@ const getIndexesWithMaxCoverage = (indexArr: {name: string, isEsrSupported: bool
         }
     });
 
-    return indexArr.filter(index => index.coverage && index.coverage.coveredCount === maxCoverageCount);
+    return indexArr.filter(index => (index.coverage && index.coverage.coveredCount === maxCoverageCount) 
+                                        || index.fieldStreak && index.fieldStreak >= 2);
 }
