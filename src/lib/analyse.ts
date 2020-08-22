@@ -3,7 +3,7 @@ import { STORE_LOCATION } from "../utils/constants";
 import { getStreak } from "./algos/streak";
 import { getCoverage, getIndexesWithMaxCoverage } from "./algos/coverage";
 import { getQueryFieldTypes, getPositionDetails } from "../utils/query";
-import { StoredIndexType, IndexDetailsType, IndexDetailsTypeArr, JSObject } from "../utils/types";
+import { StoredIndexType, IndexDetailsType, JSObject } from "../utils/types";
 
 export const analyse = async (
 	collection: string,
@@ -14,8 +14,8 @@ export const analyse = async (
 
 	const indexes: StoredIndexType = await import(`${STORE_LOCATION}/${collection}.json`);
 
-	const indexDetailsArr: IndexDetailsTypeArr = indexes[collection].map((index) => {
-		const indexDetailsObj = <IndexDetailsType>{} ;
+	const indexDetailsArr = indexes[collection].map((index) => {
+		const indexDetailsObj:IndexDetailsType = {} ;
 		indexDetailsObj['name'] = index.name;
 		indexDetailsObj['key'] = index.key;
 		if (Object.keys(query).includes(Object.keys(index.key)[0])) {

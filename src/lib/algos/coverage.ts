@@ -1,6 +1,6 @@
-import { IQueryFieldTypes, CoverageType, IndexDetailsTypeArr, JSObject } from "../../utils/types";
+import { IQueryFieldTypes, CoverageType, JSObject, IndexDetailsType } from "../../utils/types";
 
-export const getIndexesWithMaxCoverage = (indexArr: IndexDetailsTypeArr) => {
+export const getIndexesWithMaxCoverage = (indexArr: Array<IndexDetailsType>) => {
 
 	let maxCoverageCount = 0;
 	indexArr.forEach((index) => {
