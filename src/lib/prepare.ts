@@ -1,4 +1,4 @@
-import { validateContext } from "./validate-context";
+import { validateContext } from "../utils/query";
 import { getIndexes } from "./get-indexes";
 import { Abbot } from "./abbot";
 import { Mongoose } from "mongoose";

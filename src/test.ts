@@ -4,23 +4,23 @@ import Abbot from "./index"
 
 import { Mongoose } from "mongoose";
 
-import {analyseUsableIndexes} from './lib/analyse-indexes';
+import {analyse} from './lib/analyse';
 
 const instance = new Mongoose();
 
 (async function main() {
-	const abbot = await Abbot.prepare({
-		mongooseInstance: instance,
-		collections: ["unicorns"]
-	});
-	// OR const { abbot } = Abbot;
+	// const abbot = await Abbot.prepare({
+	// 	mongooseInstance: instance,
+	// 	collections: ["unicorns"]
+	// });
+	// // OR const { abbot } = Abbot;
 
-	await abbot({
-		collection: "unicorns",
-		query: {
-			shiny: true
-		}
-	}).exec();
+	// await abbot({
+	// 	collection: "unicorns",
+	// 	query: {
+	// 		shiny: true
+	// 	}
+	// }).exec();
 
 
 	// Test for index analysis
@@ -31,5 +31,5 @@ const instance = new Mongoose();
 		cadenceId: 'id'
 	}
 
-	await analyseUsableIndexes("mailtrackingdetails", query, null, null);
+	await analyse("mailtrackingdetails", query, null, null);
 })();
