@@ -3,21 +3,21 @@ import { STORE_LOCATION } from "../utils/constants";
 import { getStreak } from "./algos/streak";
 import { getCoverage, getIndexesWithMaxCoverage } from "./algos/coverage";
 import { getQueryFieldTypes, getPositionDetails } from "../utils/query";
-import { StoredIndexType } from "../utils/types";
+import { StoredIndexType, IndexDetailsType, IndexDetailsTypeArr, JSObject } from "../utils/types";
 
 export const analyse = async (
 	collection: string,
-	query: {},
-	sort: {},
-	projection: {}
+	query: JSObject,
+	sort: JSObject,
+	projection: JSObject
 ) => {
 
 	const indexes: StoredIndexType = await import(`${STORE_LOCATION}/${collection}.json`);
 
-	const indexDetailsArr = indexes[collection].map((index: { key: {}, name: string }) => {
-		const indexDetailsObj = new Object();
+	const indexDetailsArr: IndexDetailsTypeArr = indexes[collection].map((index) => {
+		const indexDetailsObj = <IndexDetailsType>{} ;
 		indexDetailsObj['name'] = index.name;
-		indexDetailsObj['keys'] = index.key;
+		indexDetailsObj['key'] = index.key;
 		if (Object.keys(query).includes(Object.keys(index.key)[0])) {
 			const queryFieldTypes = getQueryFieldTypes(query, sort);
 			indexDetailsObj['coverage'] = getCoverage(index.key, queryFieldTypes);
@@ -34,18 +34,12 @@ export const analyse = async (
 	const bestIndexes = getIndexesWithMaxCoverage(indexDetailsArr);
 
 	bestIndexes.forEach(
-		(index: {
-			name: string,
-			keys: {},
-			coverage: any,
-			fieldStreak: number,
-			keyWiseDetails: { rangeHops: number[], equalityMax: number }
-		}) => {
+		(index) => {
 
 			const rangeFieldHops = index.keyWiseDetails.rangeHops.filter(key => key < index.keyWiseDetails.equalityMax);
 
 			let hop: number = 0, rangeFields: string[] = [];
-			for (let key in index.keys) {
+			for (let key in index.key) {
 				if (rangeFieldHops.includes(hop)) {
 					rangeFields.push(key);
 				}
