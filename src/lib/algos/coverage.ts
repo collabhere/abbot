@@ -1,6 +1,6 @@
-import { IQueryFieldTypes } from "../../utils/types";
+import { IQueryFieldTypes, CoverageType, JSObject, IndexDetailsType } from "../../utils/types";
 
-export const getIndexesWithMaxCoverage = (indexArr: { name: string, coverage: any, fieldStreak: number }[]) => {
+export const getIndexesWithMaxCoverage = (indexArr: Array<IndexDetailsType>) => {
 
 	let maxCoverageCount = 0;
 	indexArr.forEach((index) => {
@@ -14,9 +14,9 @@ export const getIndexesWithMaxCoverage = (indexArr: { name: string, coverage: an
 }
 
 export const getCoverage = (
-	indexKeys: {},
+	indexKeys: JSObject,
 	queryFieldTypes: IQueryFieldTypes
-): { coveredCount: number, totalCount: number, uncoveredFields: string[] } => {
+): CoverageType => {
 
 	let coveredCount: number = 0, totalCount: number = 0,
 		uncoveredStreak: boolean = true, unconfirmedIndex: number = -1,

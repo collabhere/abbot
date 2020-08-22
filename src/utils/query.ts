@@ -1,7 +1,7 @@
-import { JSObject, IQueryFieldTypes } from "./types";
+import { JSObject, IQueryFieldTypes, PositionDetailsType, ContextType } from "./types";
 
 export const validateContext = function (
-	context
+	context: ContextType
 ) {
 	if (!context.mongooseInstance) {
 		throw new Error("[abbot] No mongoose instance provided to abbot. Provide a mongoose instance to .prepare()");
@@ -39,7 +39,7 @@ export const getQueryFieldTypes = (
 export const getPositionDetails = (
 	indexKeys: JSObject,
 	queryFieldTypes: IQueryFieldTypes
-): { rangeHops: number[], equalityMax: number } => {
+): PositionDetailsType => {
 
 	let equalityMax = -1, currentHop = 0;
 	const rangeHops: number[] = [];

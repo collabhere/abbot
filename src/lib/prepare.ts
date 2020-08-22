@@ -1,14 +1,9 @@
 import { validateContext } from "../utils/query";
 import { getIndexes } from "./get-indexes";
 import { Abbot } from "./abbot";
-import { Mongoose } from "mongoose";
+import { ContextType, PrepareOptions } from '../utils/types';
 
-interface PrepareOptions {
-	mongooseInstance: Mongoose,
-	collections: string[]
-}
-
-export const Prepare = context => (
+export const Prepare = (context:ContextType)  => (
 	opts: PrepareOptions
 ) => {
 	Object.assign(context, opts);

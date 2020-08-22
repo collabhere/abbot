@@ -1,7 +1,8 @@
 import { Prepare } from "./lib/prepare";
 import { Abbot } from "./lib/abbot";
+import { ContextType } from "./utils/types"
 
-const context = {
+const context: ContextType = {
 	mongooseInstance: undefined
 };
 

@@ -1,9 +1,6 @@
-interface AbbotOptions {
-	collection: string;
-	query: any;
-}
+import {AbbotOptions, ContextType} from '../utils/types'
 
-export const Abbot = context => (
+export const Abbot = (context: ContextType) => (
 	opts: AbbotOptions
 ) => {
 	return {
