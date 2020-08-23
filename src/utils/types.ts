@@ -40,7 +40,7 @@ export interface PositionDetailsType {
 
 export interface ContextType {
 	mongooseInstance: Mongoose;
-	// @todo
+	report: AnalysisReport[];
 }
 
 export interface AbbotOptions {
@@ -52,3 +52,11 @@ export interface PrepareOptions {
 	mongooseInstance: Mongoose;
 	collections: string[];
 }
+
+export interface AnalysisReport {
+	suggestion?: string;
+	indexName?: string;
+	fields?: string[];
+}
+
+
