@@ -2,7 +2,8 @@ import { STORE_LOCATION } from "../utils/constants";
 
 import { getStreak } from "./algos/streak";
 import { getCoverage, getIndexesWithMaxCoverage } from "./algos/coverage";
-import { getQueryFieldTypes, getPositionDetails } from "../utils/query";
+import { getPositionDetails } from "./algos/position";
+import { getQueryFieldTypes } from "../utils/query";
 import { StoredIndexType, IndexDetailsType, JSObject, ContextType, AnalysisReport } from "../utils/types";
 
 
@@ -41,11 +42,16 @@ export const analyse = (context: ContextType) => {
 				let finalResult: AnalysisReport = {}; 
 
 				const rangeFieldHops = index.keyWiseDetails.rangeHops.filter(key => key < index.keyWiseDetails.equalityMax);
+				const sortFieldHops = index.keyWiseDetails.sortHops.filter(key => key < index.keyWiseDetails.equalityMax 
+																						|| key > index.keyWiseDetails.rangeMax);
 
-				let hop: number = 0, rangeFields: string[] = [];
+				let hop: number = 0, rangeFields: string[] = [], sortFields:string[] = [];
 				for (let key in index.key) {
 					if (rangeFieldHops.includes(hop)) {
 						rangeFields.push(key);
+					}
+					if (sortFieldHops.includes(hop)) {
+						sortFields.push(key);
 					}
 					hop += 1;
 				}
@@ -62,6 +68,12 @@ export const analyse = (context: ContextType) => {
 					// console.log(`The following range fields can be changed to equality fields: ${rangeFields}`);
 					finalResult.suggestion = "CHANGE_OPERATION";
 					finalResult.fields = rangeFields;
+				}
+
+				if (sortFields && sortFields.length > 0) {
+					// console.log(`Change your index to move the sort fields in the middle: ${rangeFields}`);
+					finalResult.suggestion = "CHANGE_INDEX";
+					finalResult.fields = sortFields;
 				}
 
 				return finalResult;

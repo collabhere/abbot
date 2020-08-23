@@ -1,7 +1,7 @@
-import { IQueryFieldTypes } from "../../utils/types";
+import { IQueryFieldTypes, JSObject } from "../../utils/types";
 
 export const getStreak = (
-	indexKeys: any,
+	indexKeys: JSObject,
 	queryFieldTypes: IQueryFieldTypes
 ): number => {
 	let currentStreak = 0;
