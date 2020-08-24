@@ -46,7 +46,7 @@ export const analyse = (context: Context) => async (
 
 	if (testableIndexes && testableIndexes.length) {
 		// Run analysis for each index and derive suggestions using report builder module.
-		testableIndexes.map(
+		testableIndexes.forEach(
 			runQueryAnalysisForIndex(algos, query, sort, projection)
 		);
 
