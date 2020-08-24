@@ -25,7 +25,8 @@ export const checkStreak = (reporter: Reporter) => (
 
 	if (
 		streak > 1 // Streak is made
-		&& (Math.floor((streak / keys.length) * 100) >= 75) // AND we have >= 75% fields of an index
+		&& (Math.floor((streak / keys.length) * 100) >= 75)
+		&& (Math.floor((streak / keys.length) * 100) < 100) // AND we have between 75% and 100% of the fields in the index
 	) {
 		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELD_FOR_COVERED_QUERY, keys.slice(streak, keys.length));
 	}
