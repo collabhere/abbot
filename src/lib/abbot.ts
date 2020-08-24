@@ -1,9 +1,10 @@
-import {AbbotOptions, ContextType} from '../utils/types'
+import { AbbotOptions, Context } from '../utils/types'
+import { analyse } from './analyse';
 
-export const Abbot = (context: ContextType) => (
+export const Abbot = (context: Context) => (
 	opts: AbbotOptions
 ) => {
 	return {
-		exec: () => { }
+		exec: () => analyse(context)(opts.collection, opts.query, opts.sort, opts.project)
 	};
 }

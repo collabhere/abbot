@@ -1,7 +1,7 @@
-import { JSObject, IQueryFieldTypes, PositionDetailsType, ContextType } from "./types";
+import { JSObject, IQueryFieldTypes, Context } from "./types";
 
 export const validateContext = function (
-	context: ContextType
+	context: Context
 ) {
 	if (!context.mongooseInstance) {
 		throw new Error("[abbot] No mongoose instance provided to abbot. Provide a mongoose instance to .prepare()");
