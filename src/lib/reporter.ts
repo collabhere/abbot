@@ -78,7 +78,7 @@ export type Reporter = ReturnType<typeof Reporter>;
 
 /*
 	// `context.report` structure
-	[
+	{
 		index1: [
 			{
 				relation: "OR",
@@ -99,5 +99,5 @@ export type Reporter = ReturnType<typeof Reporter>;
 			}
 			, ... { type, fields } // OTHER SUGGESTIONS
 		]
-	]
+	}
 */
