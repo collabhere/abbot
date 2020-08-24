@@ -36,24 +36,3 @@ export const getQueryFieldTypes = (
 	return { equality, sort, range };
 }
 
-export const getPositionDetails = (
-	indexKeys: JSObject,
-	queryFieldTypes: IQueryFieldTypes
-): PositionDetailsType => {
-
-	let equalityMax = -1, currentHop = 0;
-	const rangeHops: number[] = [];
-
-	for (let indexKey in indexKeys) {
-		if (queryFieldTypes.equality.includes(indexKey)) {
-			if (currentHop > equalityMax) equalityMax = currentHop;
-		} else if (queryFieldTypes.sort.includes(indexKey)) {
-			// ??
-		} else if (queryFieldTypes.range.includes(indexKey)) {
-			rangeHops.push(currentHop);
-		}
-		currentHop += 1;
-	}
-
-	return { rangeHops, equalityMax };
-}

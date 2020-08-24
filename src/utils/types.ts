@@ -35,12 +35,14 @@ export interface CoverageType {
 
 export interface PositionDetailsType {
 	rangeHops: number[];
+	sortHops: number[];
+	rangeMax: number;
 	equalityMax: number;
 }
 
 export interface ContextType {
 	mongooseInstance: Mongoose;
-	// @todo
+	report?: AnalysisReport[];
 }
 
 export interface AbbotOptions {
@@ -52,3 +54,11 @@ export interface PrepareOptions {
 	mongooseInstance: Mongoose;
 	collections: string[];
 }
+
+export interface AnalysisReport {
+	suggestion?: string;
+	indexName?: string;
+	fields?: string[];
+}
+
+

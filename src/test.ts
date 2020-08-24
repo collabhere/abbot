@@ -5,6 +5,7 @@ import Abbot from "./index"
 import { Mongoose } from "mongoose";
 
 import {analyse} from './lib/analyse';
+import { ContextType } from "./utils/types";
 
 const instance = new Mongoose();
 
@@ -24,6 +25,7 @@ const instance = new Mongoose();
 
 
 	// Test for index analysis
+	const context: ContextType = {mongooseInstance: instance};
 	const query = {
 		flgUseStatus: 1,
 		company: {$in: ['abc', 'def']},
@@ -31,5 +33,5 @@ const instance = new Mongoose();
 		cadenceId: 'id'
 	}
 
-	await analyse("mailtrackingdetails", query, null, null);
+	await analyse(context)("mailtrackingdetails", query, null, null);
 })();
