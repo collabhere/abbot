@@ -8,57 +8,40 @@ export interface IQueryFieldTypes {
 
 export type JSObject = { [k: string]: any }
 
-export interface StoredIndexType {
-	[k:string]: {
-		key: {
-			[key:string]: 1|-1
-		};
-		name: string;
-	}[]
+export type MongoIndexKey = {
+	[key: string]: 1 | -1;
 }
 
-export interface IndexDetailsType {
-	key?: {
-		[key: string]: 1|-1
-	};
-	name?: string;
-	coverage?: CoverageType;
-	keyWiseDetails?: PositionDetailsType;
-	fieldStreak?: number;
+export interface StoredIndex {
+	key: MongoIndexKey;
+	name: string;
 }
 
-export interface CoverageType {
-	coveredCount: number;
-	totalCount: number;
-	uncoveredFields: string[];
+export interface StoredCollection {
+	[k: string]: StoredIndex[];
 }
 
-export interface PositionDetailsType {
-	rangeHops: number[];
-	sortHops: number[];
-	rangeMax: number;
-	equalityMax: number;
+type SuggestionItem = { suggestion: string; fields: string[]; };
+
+interface AnalysisReport {
+	[k: string]: Array<SuggestionItem | { relation?: "AND" | "OR"; suggestions?: SuggestionItem[] }>
 }
 
-export interface ContextType {
+export interface Context {
 	mongooseInstance: Mongoose;
-	report?: AnalysisReport[];
+	report: AnalysisReport;
+	debugInfo: boolean; /* If true, abbot will print whats happening. Defaults to false. */
 }
 
 export interface AbbotOptions {
 	collection: string;
 	query: any;
+	sort?: any;
+	project?: any;
 }
 
 export interface PrepareOptions {
 	mongooseInstance: Mongoose;
 	collections: string[];
 }
-
-export interface AnalysisReport {
-	suggestion?: string;
-	indexName?: string;
-	fields?: string[];
-}
-
 

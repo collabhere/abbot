@@ -1,49 +1,29 @@
-import { IQueryFieldTypes, CoverageType, JSObject, IndexDetailsType } from "../../utils/types";
+import { IQueryFieldTypes, JSObject } from "../../utils/types";
+import { SUGGESTION_TYPES } from "../../utils/constants";
+import { Reporter } from "../reporter";
 
-export const getIndexesWithMaxCoverage = (indexArr: Array<IndexDetailsType>) => {
-
-	let maxCoverageCount = 0;
-	indexArr.forEach((index) => {
-		if (index.coverage && index.coverage.coveredCount > maxCoverageCount) {
-			maxCoverageCount = index.coverage.coveredCount;
-		}
-	});
-
-	return indexArr.filter(index => (index.coverage && index.coverage.coveredCount === maxCoverageCount)
-		|| index.fieldStreak && index.fieldStreak >= 2);
-}
-
-export const getCoverage = (
+export const coverageForIndex = (reporter: Reporter) => (
+	indexName: string,
 	indexKeys: JSObject,
 	queryFieldTypes: IQueryFieldTypes
-): CoverageType => {
+) => {
 
-	let coveredCount: number = 0, totalCount: number = 0,
-		uncoveredStreak: boolean = true, unconfirmedIndex: number = -1,
-		uncoveredCount: number = 0;
-	const uncoveredFields: string[] = [];
+	const isUsed = (key: string) =>
+		queryFieldTypes.equality.includes(key)
+		|| queryFieldTypes.range.includes(key)
+		|| queryFieldTypes.sort.includes(key);
 
-	for (let indexKey in indexKeys) {
-		totalCount += 1;
-		if (queryFieldTypes.equality.includes(indexKey)
-			|| queryFieldTypes.range.includes(indexKey)
-			|| queryFieldTypes.sort.includes(indexKey)) {
+	const unusedFields =
+		Object
+			.keys(indexKeys)
+			.filter(
+				(key, pos, keys) => (
+					!isUsed(key)  // Current key is not used
+					&& keys.some((k, p) => p > pos && isUsed(k)) // and there is some key ahead that is used.
+				)
+			);
 
-			coveredCount += 1;
-			uncoveredStreak = false;
-			unconfirmedIndex = -1;
-		} else {
-			uncoveredCount += 1;
-			if (!uncoveredStreak) {
-				unconfirmedIndex = uncoveredCount - 1;
-			}
-			uncoveredFields.push(indexKey);
-
-			uncoveredStreak = true;
-		}
+	if (unusedFields && unusedFields.length) {
+		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELD, unusedFields);
 	}
-
-	if (unconfirmedIndex !== -1) uncoveredFields.splice(unconfirmedIndex, uncoveredFields.length - unconfirmedIndex);
-
-	return { coveredCount, totalCount, uncoveredFields };
 }

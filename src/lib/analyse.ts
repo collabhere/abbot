@@ -1,85 +1,63 @@
 import { STORE_LOCATION } from "../utils/constants";
 
-import { getStreak } from "./algos/streak";
-import { getCoverage, getIndexesWithMaxCoverage } from "./algos/coverage";
-import { getPositionDetails } from "./algos/position";
 import { getQueryFieldTypes } from "../utils/query";
-import { StoredIndexType, IndexDetailsType, JSObject, ContextType, AnalysisReport } from "../utils/types";
+import { StoredCollection, StoredIndex, JSObject, Context } from "../utils/types";
+import { Reporter } from "./reporter";
+import { createAlgos, Algorithms } from "./algos";
 
+const runQueryAnalysisForIndex = (
+	algos: Algorithms,
+	query: JSObject,
+	sort: JSObject,
+	projection: JSObject
+) => ({ name, key }: StoredIndex) => {
 
-export const analyse = (context: ContextType) => {
+	const fieldTypes = getQueryFieldTypes(query, sort);
 
-	return async (
-			collection: string,
-			query: JSObject,
-			sort: JSObject,
-			projection: JSObject
-		): Promise<ContextType> => {
+	algos.coverage(name, key, fieldTypes);
 
-			const indexes: StoredIndexType = await import(`${STORE_LOCATION}/${collection}.json`);
+	algos.position(name, key, fieldTypes);
 
-			const indexDetailsArr = indexes[collection].map((index) => {
-				const indexDetailsObj:IndexDetailsType = {} ;
-				indexDetailsObj['name'] = index.name;
-				indexDetailsObj['key'] = index.key;
-				if (Object.keys(query).includes(Object.keys(index.key)[0])) {
-					const queryFieldTypes = getQueryFieldTypes(query, sort);
-					indexDetailsObj['coverage'] = getCoverage(index.key, queryFieldTypes);
-					indexDetailsObj['keyWiseDetails'] = getPositionDetails(index.key, queryFieldTypes);
-					indexDetailsObj['fieldStreak'] = getStreak(index.key, queryFieldTypes);
-				} else {
-					indexDetailsObj['coverage'] = null;
-					indexDetailsObj['keyWiseDetails'] = null;
-					indexDetailsObj['fieldStreak'] = null;
-				}
-				return indexDetailsObj;
-			});
+	algos.streak(name, key, fieldTypes);
+}
 
-			const bestIndexes = getIndexesWithMaxCoverage(indexDetailsArr);
+/**
+ * Analyse
+ * @param { Context } context Execution context of abbot
+ */
+export const analyse = (context: Context) => async (
+	collection: string,
+	query: JSObject,
+	sort: JSObject,
+	projection: JSObject
+) => {
 
-			const resultArr = bestIndexes.map(index => {
+	const reporter = Reporter(
+		context, collection,
+		query, sort, projection
+	);
 
-				let finalResult: AnalysisReport = {}; 
+	const algos = createAlgos(reporter);
 
-				const rangeFieldHops = index.keyWiseDetails.rangeHops.filter(key => key < index.keyWiseDetails.equalityMax);
-				const sortFieldHops = index.keyWiseDetails.sortHops.filter(key => key < index.keyWiseDetails.equalityMax 
-																						|| key > index.keyWiseDetails.rangeMax);
+	const indexes: StoredCollection = await import(`${STORE_LOCATION}/${collection}.json`);
 
-				let hop: number = 0, rangeFields: string[] = [], sortFields:string[] = [];
-				for (let key in index.key) {
-					if (rangeFieldHops.includes(hop)) {
-						rangeFields.push(key);
-					}
-					if (sortFieldHops.includes(hop)) {
-						sortFields.push(key);
-					}
-					hop += 1;
-				}
+	/* Fitler indexes that will actually be used by mongo to support this query, i.e. indexes which have the first key in the query */
+	const testableIndexes = indexes[collection].filter(index => (Object.keys(index.key) && Object.keys(index.key)[0]));
 
-				finalResult.indexName = index.name;
+	if (testableIndexes && testableIndexes.length) {
+		// Run analysis for each index and derive suggestions using report builder module.
+		testableIndexes.forEach(
+			runQueryAnalysisForIndex(algos, query, sort, projection)
+		);
 
-				if (index.coverage.uncoveredFields && index.coverage.uncoveredFields.length > 0) {
-					// console.log(`Add the following fields to your query to use this index better:  ${index.coverage.uncoveredFields}`);
-					finalResult.suggestion = "ADD_FIELDS";
-					finalResult.fields = index.coverage.uncoveredFields;
-				}
+	} else {
+		// No indexes found to support this query.
+		// Proceed to determining the most optimal index for this query by ESR.
+	}
 
-				if (rangeFields && rangeFields.length > 0) {
-					// console.log(`The following range fields can be changed to equality fields: ${rangeFields}`);
-					finalResult.suggestion = "CHANGE_OPERATION";
-					finalResult.fields = rangeFields;
-				}
-
-				if (sortFields && sortFields.length > 0) {
-					// console.log(`Change your index to move the sort fields in the middle: ${rangeFields}`);
-					finalResult.suggestion = "CHANGE_INDEX";
-					finalResult.fields = sortFields;
-				}
-
-				return finalResult;
-			});
-
-			context.report = resultArr;
-			return Promise.resolve(context);
-		}
+	reporter.report({
+		type: "file",
+		format: "json",
+		path: __dirname + "/../../reports" + `/report-${Date.now()}.json`
+	});
 }

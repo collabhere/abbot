@@ -4,18 +4,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Build & Launch",
-            "program": "${workspaceFolder}/src/app.ts",
-            "preLaunchTask": "tsc: build - tsconfig.json",
-            "args": [
-                "--trace-warnings"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Tests Launch",
-            "program": "${workspaceFolder}/src/test.ts",
+            "name": "Test Launch",
+            "program": "${workspaceFolder}/dist/test.js",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "args": [
                 "--trace-warnings"
