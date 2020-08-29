@@ -1,5 +1,3 @@
-import { Mongoose } from "mongoose";
-
 export interface IQueryFieldTypes {
 	equality: string[];
 	sort: string[];
@@ -28,7 +26,7 @@ interface AnalysisReport {
 }
 
 export interface Context {
-	mongooseInstance: Mongoose;
+	mongoUri: string;
 	report: AnalysisReport;
 	debugInfo: boolean; /* If true, abbot will print whats happening. Defaults to false. */
 }
@@ -41,7 +39,7 @@ export interface AbbotOptions {
 }
 
 export interface PrepareOptions {
-	mongooseInstance: Mongoose;
+	mongoUri: string;
 	collections: string[];
 }
 

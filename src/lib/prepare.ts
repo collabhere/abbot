@@ -1,4 +1,4 @@
-import { Mongoose } from "mongoose";
+import { MongoClient } from "mongodb";
 import { promises as fs, existsSync } from 'fs';
 
 import { Abbot } from "./abbot";
@@ -14,7 +14,7 @@ type ListIndexesResult = {
 }[];
 
 async function fetch(
-	mongoose: Mongoose,
+	mongoClient: MongoClient,
 	collections: string[]
 ) {
 	if (!existsSync(STORE_LOCATION)) {
@@ -22,7 +22,7 @@ async function fetch(
 	}
 
 	await Promise.all(collections.map(async collection => {
-		const indexes = await mongoose.model(collection).listIndexes() as unknown as ListIndexesResult;
+		const indexes = await mongoClient.db().collection(collection).indexes() as unknown as ListIndexesResult;
 
 		const obj = {
 			[collection]: indexes.map(({ key, name }) => ({ key, name }))
@@ -33,14 +33,16 @@ async function fetch(
 }
 
 async function prepareStore(
-	client: Mongoose,
+	uri: string,
 	collections: string[] | undefined
 ) {
 	if (!collections || collections.length === 0) {
 		throw new Error("[prepare][store] Please provide a list of collections to test against.");
 	}
 
-	if (client.connection.readyState !== 1) { // Not connected
+	const client = await createConnection(uri);
+
+	if (!client.isConnected()) { // Not connected
 		// await new Promise((resolve, reject) => {
 		// 	client.connection.on("connected", async function () {
 		// 		await fetch(client, collections);
@@ -50,10 +52,12 @@ async function prepareStore(
 		// 		reject(err);
 		// 	});
 		// }); // @todo: Above
-		throw new Error("[prepare][store] Please connect the instance provided to the database before calling `.prepare()`");
+		throw new Error("[prepare][store] Connection to MongoDB failed! Please check your connection-string.");
 	} else {
 		await fetch(client, collections);
 	}
+
+	client.close();
 }
 
 
@@ -65,7 +69,16 @@ export const Prepare = (context:Context)  => async (
 
 	validateContext(context);
 	
-	await prepareStore(opts.mongooseInstance, opts.collections); // Make this conditional in the future
+	await prepareStore(opts.mongoUri, opts.collections); // Make this conditional in the future
 
 	return Abbot(context);
+}
+
+
+const createConnection = async (
+	uri: string
+): Promise<MongoClient> => {
+	const client = new MongoClient(uri);
+	await client.connect();
+	return client;
 }
