@@ -3,7 +3,7 @@ import { Abbot } from "./lib/abbot";
 import { Context } from "./utils/types"
 
 const context: Context = {
-	mongooseInstance: undefined,
+	mongoUri: undefined,
 	report: {},
 	debugInfo: false
 };

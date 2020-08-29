@@ -3,8 +3,8 @@ import { JSObject, IQueryFieldTypes, Context } from "./types";
 export const validateContext = function (
 	context: Context
 ) {
-	if (!context.mongooseInstance) {
-		throw new Error("[abbot] No mongoose instance provided to abbot. Provide a mongoose instance to .prepare()");
+	if (!context.mongoUri) {
+		throw new Error("[abbot] No MongoDB connection-string provided to abbot. Provide a MongoDB connection-string to .prepare()");
 	}
 }
 

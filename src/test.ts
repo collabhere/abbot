@@ -1,28 +1,14 @@
 /* Temp file for early development */
 
-import Abbot from "./index"
+import Abbot from "./index";
 
-import { Mongoose, Schema } from "mongoose";
-
-const instance = new Mongoose();
-
-const URI = "";
+const URI = "mongodb://root:Blot7ya*ThoT@139.59.28.1:23167/abbot_testing?authSource=admin";
 
 (async function main() {
 
 	try {
-		instance.model("unicorns", new Schema({
-			"name": String,
-			"shiny": Boolean,
-			"hornLength": Number,
-			"age": Number,
-			"status": String
-		}));
-	
-		await instance.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true });
-		
 		const abbot = await Abbot.prepare({
-			mongooseInstance: instance,
+			mongoUri: URI,
 			collections: ["unicorns"]
 		});
 	
@@ -38,11 +24,8 @@ const URI = "";
 			collection: "unicorns",
 			query
 		}).exec();
-		
-		instance.disconnect();
 	} catch(err) {
 		console.error(err);
-		instance.disconnect();
 	}
 	
 })();
