@@ -2,7 +2,7 @@
 
 import Abbot from "./index";
 
-const URI = "mongodb://root:Blot7ya*ThoT@139.59.28.1:23167/abbot_testing?authSource=admin";
+const URI = "";
 
 (async function main() {
 
