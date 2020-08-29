@@ -1,10 +1,7 @@
 import { MongoClient } from "mongodb";
 import { promises as fs, existsSync } from 'fs';
 
-import { Abbot } from "./abbot";
-
-import { Context, PrepareOptions } from '../utils/types';
-import { validateContext } from "../utils/query";
+import { PrepareOptions } from '../utils/types';
 import { STORE_LOCATION } from "../utils/constants";
 
 type ListIndexesResult = {
@@ -42,36 +39,16 @@ async function prepareStore(
 
 	const client = await createConnection(uri);
 
-	if (!client.isConnected()) { // Not connected
-		// await new Promise((resolve, reject) => {
-		// 	client.connection.on("connected", async function () {
-		// 		await fetch(client, collections);
-		// 		resolve();
-		// 	});
-		// 	client.connection.on("error", function(err) {
-		// 		reject(err);
-		// 	});
-		// }); // @todo: Above
-		throw new Error("[prepare][store] Connection to MongoDB failed! Please check your connection-string.");
-	} else {
-		await fetch(client, collections);
-	}
+	await fetch(client, collections);
 
-	client.close();
+	await client.close();
 }
 
 
-export const Prepare = (context:Context)  => async (
+export const Prepare = async (
 	opts: PrepareOptions
 ) => {
-
-	Object.assign(context, opts);
-
-	validateContext(context);
-	
-	await prepareStore(opts.mongoUri, opts.collections); // Make this conditional in the future
-
-	return Abbot(context);
+	await prepareStore(opts.mongoUri, opts.collections);
 }
 
 

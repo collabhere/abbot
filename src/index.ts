@@ -1,15 +1,7 @@
 import { Prepare } from "./lib/prepare";
-import { Abbot } from "./lib/abbot";
-import { Context } from "./utils/types"
+import { Analyse } from "./lib/analyse";
 
-const context: Context = {
-	mongoUri: undefined,
-	report: {},
-	debugInfo: false
+export = {
+	analyse: Analyse(),
+	prepare: Prepare
 };
-
-const prepare = Prepare(context);
-
-const abbot = Abbot(context);
-
-export = { abbot, prepare };

@@ -1,22 +1,14 @@
-import { JSObject, IQueryFieldTypes, Context } from "./types";
+import { IQueryFieldTypes } from "./types";
 
-export const validateContext = function (
-	context: Context
-) {
-	if (!context.mongoUri) {
-		throw new Error("[abbot] No MongoDB connection-string provided to abbot. Provide a MongoDB connection-string to .prepare()");
-	}
-}
-
-export const isEquality = (queryFieldVal: JSObject | string | number): boolean =>
+export const isEquality = (queryFieldVal: any | string | number): boolean =>
 	(typeof queryFieldVal === 'string'
 		|| typeof queryFieldVal === 'number'
 		|| (typeof queryFieldVal === 'object'
 			&& Object.keys(queryFieldVal)[0] === '$eq')) ? true : false;
 
 export const getQueryFieldTypes = (
-	query: JSObject,
-	sortFields: JSObject
+	query: any,
+	sortFields: any
 ): IQueryFieldTypes => {
 
 	const equality = [], sort = [], range = [];

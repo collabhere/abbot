@@ -1,15 +1,15 @@
 import { STORE_LOCATION } from "../utils/constants";
 
 import { getQueryFieldTypes } from "../utils/query";
-import { StoredCollection, StoredIndex, JSObject, Context } from "../utils/types";
+import { StoredCollection, StoredIndex } from "../utils/types";
 import { Reporter } from "./reporter";
 import { createAlgos, Algorithms } from "./algos";
 
 const runQueryAnalysisForIndex = (
 	algos: Algorithms,
-	query: JSObject,
-	sort: JSObject,
-	projection: JSObject
+	query: any,
+	sort: any,
+	projection: any
 ) => ({ name, key }: StoredIndex) => {
 
 	const fieldTypes = getQueryFieldTypes(query, sort);
@@ -21,23 +21,24 @@ const runQueryAnalysisForIndex = (
 	algos.streak(name, key, fieldTypes);
 }
 
-/**
- * Analyse
- * @param { Context } context Execution context of abbot
- */
-export const analyse = (context: Context) => async (
-	collection: string,
-	query: JSObject,
-	sort: JSObject,
-	projection: JSObject
-) => {
+export interface Analyse$Query {
+	collection: string;
+	query: any;
+	sort?: any;
+	projection?: any;
+};
 
-	const reporter = Reporter(
-		context, collection,
-		query, sort, projection
-	);
+const analyseQuery = (reporter: Reporter) => async ({
+	collection, query,
+	sort, projection
+}: Analyse$Query) => {
 
 	const algos = createAlgos(reporter);
+
+	reporter.setup(
+		collection, query,
+		sort, projection,
+	)
 
 	const indexes: StoredCollection = await import(`${STORE_LOCATION}/${collection}.json`);
 
@@ -54,10 +55,21 @@ export const analyse = (context: Context) => async (
 		// No indexes found to support this query.
 		// Proceed to determining the most optimal index for this query by ESR.
 	}
+}
 
-	reporter.report({
-		type: "file",
-		format: "json",
-		path: __dirname + "/../../reports" + `/report-${Date.now()}.json`
-	});
+/**
+ * 
+ * @param collection 
+ * @param query 
+ * @param sort 
+ * @param projection 
+ */
+export const Analyse = () => {
+	const reporter = Reporter();
+	return {
+		query: analyseQuery(reporter),
+		count: () => () => { },
+		aggregation: () => () => { },
+		report: reporter.report
+	};
 }

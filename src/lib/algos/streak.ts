@@ -1,10 +1,10 @@
-import { IQueryFieldTypes, JSObject } from "../../utils/types";
+import { IQueryFieldTypes } from "../../utils/types";
 import { Reporter } from "../reporter";
 import { SUGGESTION_TYPES } from "../../utils/constants";
 
 export const checkStreak = (reporter: Reporter) => (
 	indexName: string,
-	indexKeys: JSObject,
+	indexKeys: any,
 	queryFieldTypes: IQueryFieldTypes
 ) => {
 	const isUsed = (key: string) =>

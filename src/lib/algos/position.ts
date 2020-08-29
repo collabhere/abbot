@@ -1,4 +1,4 @@
-import { JSObject, IQueryFieldTypes } from "../../utils/types";
+import { IQueryFieldTypes } from "../../utils/types";
 import { Reporter } from "../reporter";
 import { SUGGESTION_TYPES } from "../../utils/constants";
 
@@ -44,7 +44,7 @@ const getPositionDetails = (
 
 export const positionAnalysis = (reporter: Reporter) => (
 	indexName: string,
-	indexKeys: JSObject,
+	indexKeys: any,
 	queryFieldTypes: IQueryFieldTypes
 ) => {
 

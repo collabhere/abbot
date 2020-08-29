@@ -7,11 +7,11 @@ const URI = "";
 (async function main() {
 
 	try {
-		const abbot = await Abbot.prepare({
+		await Abbot.prepare({
 			mongoUri: URI,
 			collections: ["unicorns"]
 		});
-	
+
 		const query = {
 			age: {
 				$gte: 50,
@@ -19,13 +19,22 @@ const URI = "";
 			},
 			hornLength: 50
 		};
-	
-		await abbot({
+
+		const { analyse } = Abbot;
+
+		await analyse.query({
 			collection: "unicorns",
 			query
-		}).exec();
-	} catch(err) {
+		});
+
+		await analyse.report({
+			format: "txt",
+			type: "file",
+			path: __dirname + "/reports/report-" + Date.now() + ".txt"
+		});
+
+	} catch (err) {
 		console.error(err);
 	}
-	
+
 })();

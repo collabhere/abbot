@@ -1,10 +1,10 @@
-import { IQueryFieldTypes, JSObject } from "../../utils/types";
+import { IQueryFieldTypes } from "../../utils/types";
 import { SUGGESTION_TYPES } from "../../utils/constants";
 import { Reporter } from "../reporter";
 
 export const coverageForIndex = (reporter: Reporter) => (
 	indexName: string,
-	indexKeys: JSObject,
+	indexKeys: any,
 	queryFieldTypes: IQueryFieldTypes
 ) => {
 

@@ -1,48 +1,42 @@
 import { writeFileSync } from "fs";
 
-import { Context, JSObject } from "../utils/types";
-
 type ReportOptions = {
 	type: "stdout" | "file";
 	format: "json" | "txt";
 	path?: string;
 };
 
-export const Reporter = (
-	context: Context,
-	collection: string,
-	query: JSObject,
-	sort: JSObject,
-	projection: JSObject
-) => ({
-	insert: function(index: string, item: any) {
-		if (context.report[index])
-			context.report[index].push(item);
+export const Reporter = () => ({
+	_report: {},
+	setup: function (collection: string, query: any, sort: any, projection: any) { },
+	insert: function (index: string, item: any) {
+		if (this._report[index])
+			this._report[index].push(item);
 		else
-			context.report[index] = [item];
+			this._report[index] = [item];
 	},
-	suggest: function(index: string, type: string, fields: string[]) {
+	suggest: function (index: string, type: string, fields: string[]) {
 		const item = { suggestion: type, fields };
 		this.insert(index, item);
 	},
-	suggestOR: function(index: string, ...suggestions: { type: string; fields: string[]; }[]) {
+	suggestOR: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
 		const item = {
 			relation: "OR",
 			suggestions: suggestions.map(({ type, fields }) => ({ suggestion: type, fields }))
 		};
 		this.insert(index, item);
 	},
-	suggestAND: function(index: string, ...suggestions: { type: string; fields: string[]; }[]) {
+	suggestAND: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
 		const item = {
 			relation: "AND",
 			suggestions: suggestions.map(({ type, fields }) => ({ suggestion: type, fields }))
 		};
 		this.insert(index, item);
 	},
-	report: function({ type, format, path }: ReportOptions) {
+	report: function ({ type, format, path }: ReportOptions) {
 		switch (format) {
 			case "json": {
-				const json = JSON.stringify(context.report, null, 4)
+				const json = JSON.stringify(this._report, null, 4)
 				switch (type) {
 					case "stdout": {
 						console.log(json);
@@ -77,7 +71,7 @@ export const Reporter = (
 export type Reporter = ReturnType<typeof Reporter>;
 
 /*
-	// `context.report` structure
+	// `_report` structure
 	{
 		index1: [
 			{

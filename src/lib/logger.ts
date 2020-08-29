@@ -1,10 +1,8 @@
-import { Context } from "../utils/types";
-
 export const Logger = (
-	context: Context
+	opts: { debugInfo: boolean }
 ) => ({
 	log: (...args: any[]) => {
-		if (context.debugInfo) {
+		if (opts.debugInfo) {
 			console.log(...args);
 		}
 	}
