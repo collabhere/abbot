@@ -22,7 +22,7 @@ type PositionDetail = {
  * @param param0 Query fields segregated by their type, i.e. equalities, sorts and ranges
  * @param keys Index keys
  */
-const getPositionDetails = (
+export const getPositionDetails = (
 	{ equality: equalities, sort: sorts, range: ranges }: IQueryFieldTypes,
 	keys: string[]
 ) => keys.reduce(
