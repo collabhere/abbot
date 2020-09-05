@@ -20,12 +20,23 @@ const URI = "";
 			hornLength: 50
 		};
 
+		const pipeline = [
+			{ $match : { hornLength : 50, age: { $gte: 50, $lte: 150 }}},
+			{ $group : { _id : '$hornLength', count : { $sum : 1 }}},
+			{ $unwind : { path : "$age" }}
+		]
+
 		const { analyse } = Abbot;
 
-		await analyse.query({
+		// await analyse.query({
+		// 	collection: "unicorns",
+		// 	query
+		// });
+
+		await analyse.aggregation({
 			collection: "unicorns",
-			query
-		});
+			pipeline
+		})
 
 		await analyse.report({
 			format: "txt",
