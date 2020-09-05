@@ -1,5 +1,4 @@
 import { MongoClient } from "mongodb";
-import { promises as fs, existsSync } from 'fs';
 
 import { PrepareOptions } from '../utils/types';
 import { STORE_LOCATION } from "../utils/constants";
@@ -10,12 +9,13 @@ type ListIndexesResult = {
 	ns: string;
 }[];
 
-async function fetch(
+export async function fetch(
 	mongoClient: MongoClient,
-	collections: string[]
+	collections: string[],
+	fs: any
 ) {
-	if (!existsSync(STORE_LOCATION)) {
-		await fs.mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
+	if (!fs.existsSync(STORE_LOCATION)) {
+		await fs.promises.mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
 	}
 
 	await Promise.all(collections.map(async collection => {
@@ -25,7 +25,7 @@ async function fetch(
 			[collection]: indexes.map(({ key, name }) => ({ key, name }))
 		};
 
-		await fs.writeFile(`${STORE_LOCATION}/${collection}.json`, JSON.stringify(obj));
+		await fs.promises.writeFile(`${STORE_LOCATION}/${collection}.json`, JSON.stringify(obj));
 	}));
 }
 
@@ -38,8 +38,9 @@ async function prepareStore(
 	}
 
 	const client = await createConnection(uri);
+	const fs = import ('fs');
 
-	await fetch(client, collections);
+	await fetch(client, collections, fs);
 
 	await client.close();
 }
