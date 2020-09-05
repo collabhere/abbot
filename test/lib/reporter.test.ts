@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { Reporter } from '../../src/lib/reporter';
+import { MongoIndexKey } from '../../src/utils/types';
 
 describe("Reporter", () => {
 
@@ -81,6 +82,27 @@ describe("Reporter", () => {
             expect(reporter._report['TEST_INDEX'][0]['relation']).to.eq('AND');
             expect(reporter._report['TEST_INDEX'][0]['suggestions']).to.be.an('array');
             expect(reporter._report['TEST_INDEX'][0]['suggestions'][0]['suggestion']).to.eq('TEST_SUGGESTION');
+        });
+    });
+
+    describe("SuggestNewIndexes", () => {
+
+        it ("inserts new index suggestions into _report object", () => {
+
+            const reporter = Reporter();
+            const indexKeys = {
+                field_1: 1,
+                field_2: 1,
+                field_3: 1
+            }
+
+            reporter.suggestNewIndex('INDEX_SUGGESTION', indexKeys as MongoIndexKey);
+
+            expect(reporter._report).to.exist;
+            expect(reporter._report).to.haveOwnProperty('NEW_INDEX_SUGGESTIONS');
+            expect(reporter._report['NEW_INDEX_SUGGESTIONS']).to.be.an('array');
+            expect(reporter._report['NEW_INDEX_SUGGESTIONS'][0]['suggestion']).to.eq('INDEX_SUGGESTION');
+            expect(reporter._report['NEW_INDEX_SUGGESTIONS'][0]['key']).to.haveOwnProperty('field_1');
         });
     });
 });

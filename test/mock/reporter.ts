@@ -21,6 +21,9 @@ export const mockReporter = (funcName: string, callback: any) => {
         suggestAND: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
             funcName === 'suggestAND'? callback(index, ...suggestions) : throwError();
         },
+        suggestNewIndex: function (type: string, key: {}) {
+            funcName === 'suggestNewIndex'? callback(type, key) : throwError();
+        },
         report: function ({ type, format, path }) {
             funcName === 'suggestAND'? callback(type, format, path) : throwError();
         }
