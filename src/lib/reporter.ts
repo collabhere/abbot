@@ -16,7 +16,7 @@ export const Reporter = () => ({
 		else
 			this._report[index] = [item];
 	},
-	suggest: function (index: string, type: string, fields: string[]) {
+	suggest: function (index: string, type: string, fields?: string[]) {
 		const item = { suggestion: type, fields };
 		this.insert(index, item);
 	},
@@ -33,10 +33,6 @@ export const Reporter = () => ({
 			suggestions: suggestions.map(({ type, fields }) => ({ suggestion: type, fields }))
 		};
 		this.insert(index, item);
-	},
-	suggestNewIndex: function (type: string, indexKeys: MongoIndexKey) {
-		const item = { suggestion: type, key: indexKeys };
-		this.insert('NEW_INDEX_SUGGESTIONS', item);
 	},
 	report: function ({ type, format, path }: ReportOptions) {
 		switch (format) {

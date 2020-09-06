@@ -12,7 +12,7 @@ export const mockReporter = (funcName: string, callback: any) => {
         insert: function (index: string, item: any) {
             funcName === 'insert'? callback(index, item) : throwError();
         },
-        suggest: function (index: string, type: string, fields: string[]) {
+        suggest: function (index: string, type: string, fields?: string[]) {
             funcName === 'suggest'? callback(index, type, fields) : throwError();
         },
         suggestOR: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {

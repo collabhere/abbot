@@ -7,17 +7,11 @@ describe("NewIndexSuggestions", () => {
 
     it ("suggests new indexes for unsupported queries", () => {
 
-        const queryFieldTypes = { equality: ['field_1', 'field_2'], sort: ['field_3'], range: ['field_4', 'field_5']};
+        const queryFieldTypes = { equality: ['field1', 'field2'], sort: ['field3'], range: ['field4', 'field5']};
 
-        const reporter = mockReporter("suggestNewIndex", (type: string, key: {}) => {
+        const reporter = mockReporter("suggest", (name: 'string', type: string) => {
             expect(type).to.eq('create_new_index');
-            expect(key).to.exist;
-            
-            const indexKeys = Object.keys(key);
-
-            expect(indexKeys[0]).to.eq('field_1');
-            expect(indexKeys[2]).to.eq('field_3');
-            expect(indexKeys[3]).to.eq('field_4');
+            expect(name).to.eq('field1_1_field2_1_field3_1_field4_1_field5_1');
         });
 
         newIndexSuggestion(reporter)(queryFieldTypes);
