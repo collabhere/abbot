@@ -21,6 +21,18 @@ const runQueryAnalysisForIndex = (
 	algos.streak(name, key, fieldTypes);
 }
 
+const getNewIndexSuggestions = (
+	algos: Algorithms,
+	query: any,
+	sort: any,
+	projection: any
+) => ({ name, key }: StoredIndex) => {
+
+	const fieldTypes = getQueryFieldTypes(query, sort);
+
+	algos.newIndexes(fieldTypes);
+}
+
 export interface Analyse$Query {
 	collection: string;
 	query: any;
@@ -42,7 +54,7 @@ const analyseQuery = (reporter: Reporter) => async ({
 
 	const indexes: StoredCollection = await import(`${STORE_LOCATION}/${collection}.json`);
 
-	/* Fitler indexes that will actually be used by mongo to support this query, i.e. indexes which have the first key in the query */
+	/* Filter indexes that will actually be used by mongo to support this query, i.e. indexes which have the first key in the query */
 	const testableIndexes = indexes[collection].filter(index => (Object.keys(index.key) && Object.keys(index.key)[0]));
 
 	if (testableIndexes && testableIndexes.length) {
@@ -54,6 +66,7 @@ const analyseQuery = (reporter: Reporter) => async ({
 	} else {
 		// No indexes found to support this query.
 		// Proceed to determining the most optimal index for this query by ESR.
+		getNewIndexSuggestions(algos, query, sort, projection);
 	}
 }
 

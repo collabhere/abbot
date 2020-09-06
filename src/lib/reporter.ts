@@ -1,4 +1,5 @@
 import { writeFileSync } from "fs";
+import { MongoIndexKey } from "../utils/types";
 
 type ReportOptions = {
 	type: "stdout" | "file";
@@ -15,7 +16,7 @@ export const Reporter = () => ({
 		else
 			this._report[index] = [item];
 	},
-	suggest: function (index: string, type: string, fields: string[]) {
+	suggest: function (index: string, type: string, fields?: string[]) {
 		const item = { suggestion: type, fields };
 		this.insert(index, item);
 	},

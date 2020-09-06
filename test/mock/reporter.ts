@@ -12,7 +12,7 @@ export const mockReporter = (funcName: string, callback: any) => {
         insert: function (index: string, item: any) {
             funcName === 'insert'? callback(index, item) : throwError();
         },
-        suggest: function (index: string, type: string, fields: string[]) {
+        suggest: function (index: string, type: string, fields?: string[]) {
             funcName === 'suggest'? callback(index, type, fields) : throwError();
         },
         suggestOR: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
@@ -20,6 +20,9 @@ export const mockReporter = (funcName: string, callback: any) => {
         },
         suggestAND: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
             funcName === 'suggestAND'? callback(index, ...suggestions) : throwError();
+        },
+        suggestNewIndex: function (type: string, key: {}) {
+            funcName === 'suggestNewIndex'? callback(type, key) : throwError();
         },
         report: function ({ type, format, path }) {
             funcName === 'suggestAND'? callback(type, format, path) : throwError();
