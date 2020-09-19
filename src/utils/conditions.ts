@@ -23,5 +23,22 @@ export const getPossibleExpressions = (condition: any) => {
         return acc;
     }, []);
 
-    return queriesArr;
+    const queriesObj = segregateIfs(queriesArr);
+
+    return queriesObj;
+}
+
+export const segregateIfs = (expressionsArray: [{[k:string]: any}]) => {
+
+ return expressionsArray.reduce((acc:any, queryCombination: any) => {
+            let exprObj =  queryCombination.reduce((queryAcc: any, query: any) => 
+                            ((queryCombination[queryCombination.length - 1] === query) 
+                                ? queryAcc.expr = query
+                                : queryAcc.ifs.push(query), queryAcc),
+                            {ifs: [], expr: {}});
+
+            acc.push(exprObj);
+            return acc;
+
+        }, []);
 }

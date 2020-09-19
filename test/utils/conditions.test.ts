@@ -35,13 +35,14 @@ describe("ConditionParser", () => {
 
         expect(possibleQueries).to.exist;
         expect(possibleQueries.length).to.eq(5);
-        expect(possibleQueries[0]).to.be.an('array');
-        expect(possibleQueries[0].length).to.eq(3);
-        expect(possibleQueries[0][0]).to.haveOwnProperty('$eq');
-        expect(possibleQueries[0][2]).to.haveOwnProperty('$field5');
-        expect(possibleQueries[2]).to.be.an('array');
-        expect(possibleQueries[2].length).to.eq(4);
-        expect(possibleQueries[2][1]).to.haveOwnProperty('$eq');
-        expect(possibleQueries[2][2]).to.eq('c');
+        expect(possibleQueries[0].ifs).to.be.an('array');
+        expect(possibleQueries[0].ifs.length).to.eq(2);
+        expect(possibleQueries[0].expr).to.haveOwnProperty('$field5');
+        expect(possibleQueries[2].ifs).to.be.an('array');
+        expect(possibleQueries[2].ifs.length).to.eq(3);
+        expect(possibleQueries[2].expr).to.haveOwnProperty('$field6');
+        expect(possibleQueries[4].ifs).to.be.an('array');
+        expect(possibleQueries[4].ifs.length).to.eq(2);
+        expect(possibleQueries[4].expr).to.haveOwnProperty('$field8');
     });
 });
