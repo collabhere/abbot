@@ -35,3 +35,8 @@ export interface PrepareOptions {
 	collections: string[];
 }
 
+export interface Expression {
+	ifs: [{[k: string] : any}],
+	expr: {[k: string]: any}
+}
+
