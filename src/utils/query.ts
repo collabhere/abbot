@@ -1,21 +1,12 @@
 import { IQueryFieldTypes } from "./types";
 
-export const isEquality = (queryFieldVal: any | string | number): boolean => {
-	if (typeof queryFieldVal === 'string'
-		|| typeof queryFieldVal === 'number'
-		|| (typeof queryFieldVal === 'object'
-			&& (Object.keys(queryFieldVal)[0] === '$eq'
-				|| Object.keys(queryFieldVal)[0] === '$size'))) {
+export const isEquality = (queryFieldVal: any | string | number): boolean =>  
+										(typeof queryFieldVal === 'string'
+										|| typeof queryFieldVal === 'number'
+										|| (typeof queryFieldVal === 'object'
+											&& (Object.keys(queryFieldVal)[0] === '$eq'
+											|| Object.keys(queryFieldVal)[0] === '$size'))) ? true: false;
 
-		return true;
-		
-	} else if (Object.keys(queryFieldVal)[0] === '$expr') {
-		//@todo: Call getPossibleExpressions() 
-		//@todo: Other checks for '$expr'
-	}
-
-	return false;
-}
 
 export const getQueryFieldTypes = (
 	query: any,

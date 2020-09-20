@@ -1,4 +1,4 @@
-import { Expression } from './types';
+import { Expression, QueryExpression } from './types';
 
 /**
  * Traverses a MongoDB $cond object and recursively generates all possible expressions
@@ -6,8 +6,7 @@ import { Expression } from './types';
  * @param {string} path - The string that combines every element in a possible path
  * @param {Array.<string>} possiblePaths - The array that stores all possible paths (expressions)
  */
-
-export const traverseCondition = (condition: {[K: string]: any}, path: string, possiblePaths: string[]) => {
+export const traverseCondition = (condition: {[K: string]: any}, path: string, possiblePaths: string[]): void => {
 
     path += (condition.$cond && condition.$cond.if) ? JSON.stringify(condition.$cond.if): JSON.stringify(condition);
 
@@ -52,10 +51,12 @@ export const getPossibleExpressions = (condition: {[k: string]: any}): Array<Exp
 
     traverseCondition(condition, path, arr);
 
-    //Convert a path string where elements are concatenated by '->' to an array of elements 
     const queriesArr = arr.reduce((acc, val) => {
+
+        //Convert a path string where elements are concatenated by '->' to an array of elements 
         const splitArr: any[] = val.split('->');
         const queryArr = splitArr.reduce((accltr, value) => (accltr.push(JSON.parse(value)), accltr), []);
+
         acc.push(queryArr);
         return acc;
     }, []);
@@ -64,3 +65,18 @@ export const getPossibleExpressions = (condition: {[k: string]: any}): Array<Exp
 
     return queriesObj;
 }
+
+/**
+ * If a query has an expression($expr) object, creates a separate query for each of those expressions 
+ * @param {Object} query - The mongoDB query to to analysed
+ * @returns {Array.<QueryExpression>} - An array of objects of the form {ifs: [], query: {}} 
+ */
+export const convertQueryExpressions = (query: {[k: string]: any}): Array<QueryExpression> => 
+                                                    (query['$expr'] && query['$expr']['$cond']) 
+                                                        ? getPossibleExpressions(query['$expr'])
+                                                            .reduce((acc: any, val: Expression) => (
+                                                                delete query.$expr,
+                                                                acc.push({query: {...query, ...val.expr}, ifs: val.ifs}),
+                                                                acc
+                                                            ), [])
+                                                        : [{query}];

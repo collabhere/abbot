@@ -2,6 +2,7 @@ import { STORE_LOCATION } from "../utils/constants";
 
 import { getQueryFieldTypes } from "../utils/query";
 import { StoredCollection, StoredIndex } from "../utils/types";
+import { convertQueryExpressions } from "../utils/conditions";
 import { Reporter } from "./reporter";
 import { createAlgos, Algorithms } from "./algos";
 
@@ -59,9 +60,16 @@ const analyseQuery = (reporter: Reporter) => async ({
 
 	if (testableIndexes && testableIndexes.length) {
 		// Run analysis for each index and derive suggestions using report builder module.
-		testableIndexes.forEach(
-			runQueryAnalysisForIndex(algos, query, sort, projection)
-		);
+		testableIndexes.forEach((index) => {
+			const finalQueries = convertQueryExpressions(query);
+			finalQueries.forEach((query) => {
+				if (query.ifs) {
+					// @todo: Run analysis for 'ifs' separately
+				}
+
+				runQueryAnalysisForIndex(algos, query.query, sort, projection)(index);
+			});
+		});
 
 	} else {
 		// No indexes found to support this query.

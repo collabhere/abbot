@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getPossibleExpressions } from '../../src/utils/conditions';
+import { getPossibleExpressions, convertQueryExpressions } from '../../src/utils/conditions';
 
 describe("ConditionParser", () => {
 
@@ -29,7 +29,6 @@ describe("ConditionParser", () => {
                 }
             }
         }
-
         
         const possibleQueries = getPossibleExpressions(obj);
 
@@ -44,5 +43,63 @@ describe("ConditionParser", () => {
         expect(possibleQueries[4].ifs).to.be.an('array');
         expect(possibleQueries[4].ifs.length).to.eq(2);
         expect(possibleQueries[4].expr).to.haveOwnProperty('$field8');
+    });
+});
+
+describe("convertQueryExpressions", () => {
+
+    it ("converts a query to a QueryExpression object -> with $expr", () => {
+        let query = {
+            $field1: 'a',
+            $field2: 'b',
+            $field3: {$in: ['c', 'd']},
+            $expr: {
+                $cond:{
+                    if: {$eq: ["$field1", "$field2"]},
+                    then: {
+                        $cond: {
+                            if: {$ne: ["$field3", "$field4"]},
+                            then: {"$field5": {$in: ["value1", "value2"]}},
+                            else: {"$field5": 'g'}
+                        }
+                    },
+                    else: {
+                        $cond: {
+                            if: {$eq: [{$size: [1,2]}, 2]},
+                            then: {
+                                $cond: {
+                                    if: 'c',
+                                    then: {"$field6": {$in: ["value3", "value4"]}},
+                                    else: {"$field7": {$in: ["value5", "value6"]}}
+                                }
+                            },
+                            else: {"$field8": {$gt: 20}}
+                        }
+                    }
+                }
+            }
+        }
+        
+        const expressionsObject = convertQueryExpressions(query);
+        expect(expressionsObject).to.exist;
+        expect(expressionsObject).to.be.an('array');
+        expect(expressionsObject.length).to.eq(5);
+        expect(expressionsObject[0]).to.haveOwnProperty('ifs');
+        expect(expressionsObject[1]).to.haveOwnProperty('query');
+    });
+
+    it ("converts a query to a QueryExpression object -> without $expr", () => {
+        let query = {
+            $field1: 'a',
+            $field2: 'b',
+            $field3: {$in: ['c', 'd']}
+        }
+        
+        const expressionsObject = convertQueryExpressions(query);
+        expect(expressionsObject).to.exist;
+        expect(expressionsObject).to.be.an('array');
+        expect(expressionsObject.length).to.eq(1);
+        expect(expressionsObject[0]).to.not.haveOwnProperty('ifs');
+        expect(expressionsObject[0]).to.haveOwnProperty('query');
     });
 });

@@ -40,3 +40,8 @@ export interface Expression {
 	expr: {[k: string]: any}
 }
 
+export interface QueryExpression {
+	ifs?: [{[k: string] : any}],
+	query: {[k: string]: any}
+}
+
