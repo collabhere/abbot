@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getPossibleExpressions, convertQueryExpressions } from '../../src/utils/conditions';
+import { getPossibleExpressions, convertQueryExpressions, convertIfsToQueries } from '../../src/utils/conditions';
 
 describe("ConditionParser", () => {
 
@@ -101,5 +101,44 @@ describe("convertQueryExpressions", () => {
         expect(expressionsObject.length).to.eq(1);
         expect(expressionsObject[0]).to.not.haveOwnProperty('ifs');
         expect(expressionsObject[0]).to.haveOwnProperty('query');
+    });
+});
+
+describe("ConvertIfsToQueries", () => {
+
+    it("Converts 'if' conditions to parsable Queries --> with $and", () => {
+        let obj = {
+            $cond:{
+                if: {
+                    $and: [
+                        {$eq: ["$field1", "$field2"]},
+                        {$gt: [12, "$field3"]},
+                        {$lt: [{$size: "$field4"}, "$field5"]}
+                    ]
+                },
+                then: {"$field7": {$gt: 20}},
+                else: {"$field8": {$gt: 20}}
+            }
+        }
+
+        const query = convertIfsToQueries(obj.$cond.if);
+        expect(query).to.exist;
+        expect(query).to.haveOwnProperty("field1");
+        expect(query).to.haveOwnProperty("field3");
+        expect(query).to.haveOwnProperty("field5");
+    });
+
+    it("Converts 'if' conditions to parsable Queries --> without $and", () => {
+        let obj = {
+            $cond:{
+                if: {$gt: [12, "$field3"]},
+                then: {"$field7": {$gt: 20}},
+                else: {"$field8": {$gt: 20}}
+            }
+        }
+
+        const query = convertIfsToQueries(obj.$cond.if);
+        expect(query).to.exist;
+        expect(query).to.haveOwnProperty("field3");
     });
 });

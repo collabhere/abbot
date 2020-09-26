@@ -38,22 +38,26 @@ export const segregateIfs = (expressionsArray: [{[k: string]: any}]): Array<Expr
                return acc;
    
            }, []);
-   }
+}
 
 /**
  * Converts a MongoDB $expr object into an array of all possible resulting expressions
  * @param {Object} condition - A MongoDB expression ($expr) object with a condition ($cond)
  * @returns {Array.<Expression>} - An array of objects of the form: {ifs: [], expr: {}}
  */
-export const getPossibleExpressions = (condition: {[k: string]: any}): Array<Expression> => {
+export const getPossibleExpressions = (expression: {[k: string]: any}): Array<Expression> => {
     let path = '';
     let arr: any[] = [];
 
-    traverseCondition(condition, path, arr);
+    const finalExpression = (expression.$cond && Array.isArray(expression.$cond)) 
+                            ? {$cond: {if: expression.$cond[0], then: expression.$cond[1], else: expression.$cond[2]}}
+                            : expression;
+
+    traverseCondition(finalExpression, path, arr);
 
     const queriesArr = arr.reduce((acc, val) => {
 
-        //Convert a path string where elements are concatenated by '->' to an array of elements 
+        //Convert a path string where elements are concatenated by '->' to an array of queries 
         const splitArr: any[] = val.split('->');
         const queryArr = splitArr.reduce((accltr, value) => (accltr.push(JSON.parse(value)), accltr), []);
 
@@ -68,7 +72,7 @@ export const getPossibleExpressions = (condition: {[k: string]: any}): Array<Exp
 
 /**
  * If a query has an expression($expr) object, creates a separate query for each of those expressions 
- * @param {Object} query - The mongoDB query to to analysed
+ * @param {Object} query - The mongoDB query to be analysed
  * @returns {Array.<QueryExpression>} - An array of objects of the form {ifs: [], query: {}} 
  */
 export const convertQueryExpressions = (query: {[k: string]: any}): Array<QueryExpression> => 
@@ -80,3 +84,29 @@ export const convertQueryExpressions = (query: {[k: string]: any}): Array<QueryE
                                                                 acc
                                                             ), [])
                                                         : [{query}];
+
+/**
+ * Converts an if condition of the form {operator: [field1, field2]} to the form {field1: {operator: field2}};
+ * @param {Object} ifCondition - An object with a single key which is a MongoDB operator
+ * @returns {Object} - An object that can pe parsed as a MongoDB query
+ */
+export const convertIfsToQueries = (ifCondition: {[k:string]: any}): {[k:string]: any} => {
+
+    const isQueryField = (field: any) => (typeof field !== 'object' && field[0] === '$') ? true: false;
+
+    let ifConditions: any[] = ifCondition.$and ? ifCondition.$and : [ifCondition];
+
+    const query = ifConditions.reduce((acc: any, cond: any) => {
+                        const operator = Object.keys(cond)[0];
+
+                        if (isQueryField(cond[operator][0])) {
+                            acc[cond[operator][0].replace('$','')] = {[operator]: cond[operator][1]};
+                        } else if (isQueryField(cond[operator][1])) {
+                            acc[cond[operator][1].replace('$','')] = {[operator]: cond[operator][0]};
+                        }
+                        
+                        return acc;
+                    }, {});
+
+    return query;                
+}                                                        

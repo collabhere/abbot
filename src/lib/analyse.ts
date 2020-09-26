@@ -2,7 +2,7 @@ import { STORE_LOCATION } from "../utils/constants";
 
 import { getQueryFieldTypes } from "../utils/query";
 import { StoredCollection, StoredIndex } from "../utils/types";
-import { convertQueryExpressions } from "../utils/conditions";
+import { convertQueryExpressions, convertIfsToQueries } from "../utils/conditions";
 import { Reporter } from "./reporter";
 import { createAlgos, Algorithms } from "./algos";
 
@@ -64,7 +64,11 @@ const analyseQuery = (reporter: Reporter) => async ({
 			const finalQueries = convertQueryExpressions(query);
 			finalQueries.forEach((query) => {
 				if (query.ifs) {
-					// @todo: Run analysis for 'ifs' separately
+					// Run analysis for each element in the 'ifs' array
+					query.ifs.forEach((condition) => {
+						const parsableIfs = convertIfsToQueries(condition);
+						runQueryAnalysisForIndex(algos, parsableIfs, sort, projection)(index);
+					});
 				}
 
 				runQueryAnalysisForIndex(algos, query.query, sort, projection)(index);
