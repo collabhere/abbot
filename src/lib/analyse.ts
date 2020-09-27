@@ -39,12 +39,12 @@ export interface Analyse$Query {
 	query: any;
 	sort?: any;
 	projection?: any;
-	condition?: any
+	conditions?: any
 };
 
 const analyseQuery = (reporter: Reporter) => async ({
 	collection, query,
-	sort, projection, condition
+	sort, projection, conditions
 }: Analyse$Query) => {
 
 	const algos = createAlgos(reporter);
@@ -61,9 +61,9 @@ const analyseQuery = (reporter: Reporter) => async ({
 
 	if (testableIndexes && testableIndexes.length) {
 		// Run analysis for each index and derive suggestions using report builder module.
-		if (condition && condition.length) {
+		if (conditions && conditions.length) {
 			testableIndexes.forEach((index) => {
-				condition.forEach((query: any) => {
+				conditions.forEach((query: any) => {
 					// Run analysis for each element in the 'ifs' array
 					query.ifs.forEach((condition: any) => {
 						runQueryAnalysisForIndex(algos, condition, sort, projection)(index);
