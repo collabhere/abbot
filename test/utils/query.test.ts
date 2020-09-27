@@ -47,4 +47,3 @@ describe("QueryFieldTypes", () => {
         expect(finalObject.range.length).to.eq(1);
     });
 });
-

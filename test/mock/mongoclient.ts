@@ -1,5 +1,3 @@
-import { Db } from "mongodb"
-
 export const mockMongoClient = () => ({
     db: () => ({
         collection: (collection: string) => ({

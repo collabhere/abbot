@@ -10,6 +10,7 @@
 		"experimentalDecorators": true,
 		"noImplicitAny": true,
 		"declaration": true,
+		"alwaysStrict": true,
 		"lib": [
 			"dom",
 			"es6"
