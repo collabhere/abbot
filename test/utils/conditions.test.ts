@@ -68,7 +68,7 @@ describe("convertQueryExpressions", () => {
                             if: {$eq: [{$size: [1,2]}, 2]},
                             then: {
                                 $cond: {
-                                    if: 'c',
+                                    if: {$eq: ['$fieldx', 1]},
                                     then: {"$field6": {$in: ["value3", "value4"]}},
                                     else: {"$field7": {$in: ["value5", "value6"]}}
                                 }
@@ -107,25 +107,26 @@ describe("convertQueryExpressions", () => {
 describe("ConvertIfsToQueries", () => {
 
     it("Converts 'if' conditions to parsable Queries --> with $and", () => {
-        let obj = {
-            $cond:{
-                if: {
-                    $and: [
-                        {$eq: ["$field1", "$field2"]},
-                        {$gt: [12, "$field3"]},
-                        {$lt: [{$size: "$field4"}, "$field5"]}
-                    ]
-                },
-                then: {"$field7": {$gt: 20}},
-                else: {"$field8": {$gt: 20}}
+        const ifs = [
+            {
+                $and: [
+                    {$eq: ["$field1", "$field2"]},
+                    {$gt: [12, "$field3"]},
+                    {$lt: [{$size: "$field4"}, "$field5"]}
+                ]
+            },
+            {
+                $eq: ['$field1', '$field2']
             }
-        }
+        ]
 
-        const query = convertIfsToQueries(obj.$cond.if);
-        expect(query).to.exist;
-        expect(query).to.haveOwnProperty("field1");
-        expect(query).to.haveOwnProperty("field3");
-        expect(query).to.haveOwnProperty("field5");
+        const queries = convertIfsToQueries(ifs);
+        expect(queries).to.exist;
+        expect(queries).to.be.an('array');
+        expect(queries[0]).to.haveOwnProperty("field1");
+        expect(queries[0]).to.haveOwnProperty("field3");
+        expect(queries[0]).to.haveOwnProperty("field5");
+        expect(queries[1]).to.haveOwnProperty("field1");
     });
 
     it("Converts 'if' conditions to parsable Queries --> without $and", () => {
@@ -137,8 +138,9 @@ describe("ConvertIfsToQueries", () => {
             }
         }
 
-        const query = convertIfsToQueries(obj.$cond.if);
-        expect(query).to.exist;
-        expect(query).to.haveOwnProperty("field3");
+        const queries = convertIfsToQueries([obj.$cond.if]);
+        expect(queries).to.exist;
+        expect(queries).to.be.an('array');
+        expect(queries[0]).to.haveOwnProperty("field3");
     });
 });

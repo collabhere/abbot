@@ -66,8 +66,8 @@ const analyseQuery = (reporter: Reporter) => async ({
 				if (query.ifs) {
 					// Run analysis for each element in the 'ifs' array
 					query.ifs.forEach((condition) => {
-						const parsableIfs = convertIfsToQueries(condition);
-						runQueryAnalysisForIndex(algos, parsableIfs, sort, projection)(index);
+						// const parsableIfs = convertIfsToQueries(condition);
+						// runQueryAnalysisForIndex(algos, parsableIfs, sort, projection)(index);
 					});
 				}
 
