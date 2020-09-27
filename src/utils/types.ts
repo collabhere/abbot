@@ -36,12 +36,12 @@ export interface PrepareOptions {
 }
 
 export interface Expression {
-	ifs: [{[k: string] : any}],
+	ifs: {[k: string] : any}[],
 	expr: {[k: string]: any}
 }
 
 export interface QueryExpression {
-	ifs?: [{[k: string] : any}],
-	query: {[k: string]: any}
+	ifs?: {[k: string] : any}[],
+	query?: {[k: string]: any}
 }
 

@@ -39,11 +39,12 @@ export interface Analyse$Query {
 	query: any;
 	sort?: any;
 	projection?: any;
+	condition?: any
 };
 
 const analyseQuery = (reporter: Reporter) => async ({
 	collection, query,
-	sort, projection
+	sort, projection, condition
 }: Analyse$Query) => {
 
 	const algos = createAlgos(reporter);
@@ -60,20 +61,22 @@ const analyseQuery = (reporter: Reporter) => async ({
 
 	if (testableIndexes && testableIndexes.length) {
 		// Run analysis for each index and derive suggestions using report builder module.
-		testableIndexes.forEach((index) => {
-			const finalQueries = convertQueryExpressions(query);
-			finalQueries.forEach((query) => {
-				if (query.ifs) {
+		if (condition && condition.length) {
+			testableIndexes.forEach((index) => {
+				condition.forEach((query: any) => {
 					// Run analysis for each element in the 'ifs' array
-					query.ifs.forEach((condition) => {
-						// const parsableIfs = convertIfsToQueries(condition);
-						// runQueryAnalysisForIndex(algos, parsableIfs, sort, projection)(index);
+					query.ifs.forEach((condition: any) => {
+						runQueryAnalysisForIndex(algos, condition, sort, projection)(index);
 					});
-				}
-
-				runQueryAnalysisForIndex(algos, query.query, sort, projection)(index);
+					runQueryAnalysisForIndex(algos, query.query, sort, projection)(index);
+				});
 			});
-		});
+		}
+		else {
+			testableIndexes.forEach(
+				runQueryAnalysisForIndex(algos, query, sort, projection)
+			);
+		}
 
 	} else {
 		// No indexes found to support this query.
@@ -92,9 +95,22 @@ const analyseQuery = (reporter: Reporter) => async ({
 export const Analyse = () => {
 	const reporter = Reporter();
 	return {
-		query: analyseQuery(reporter),
+		query: middleware(analyseQuery(reporter), 'query'),
 		count: () => () => { },
-		aggregation: () => () => { },
+		aggregation: middleware(analyseQuery(reporter), 'aggregation'),
 		report: reporter.report
 	};
 }
+
+
+export const middleware = (func: any, type: any) => (...args: any) => {
+
+	if (type === 'query') {
+		args[0].conditions = convertQueryExpressions(args.query);
+	} else {
+		// @todo: write aggregations logic
+	}
+
+	return func(...args);
+}
+

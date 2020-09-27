@@ -109,11 +109,10 @@ export const convertIfsToQueries = (ifConditions: {[k:string]: any}[]): {[k:stri
  * @returns {Array.<QueryExpression>} - An array of objects of the form {ifs: [], query: {}} 
  */
 export const convertQueryExpressions = (query: {[k: string]: any}): Array<QueryExpression> => 
-                                                    (query['$expr'] && query['$expr']['$cond']) 
-                                                        ? getPossibleExpressions(query['$expr'])
-                                                            .reduce((acc: any, val: Expression) => (
-                                                                delete query.$expr,
-                                                                acc.push({query: {...query, ...val.expr}, ifs: convertIfsToQueries(val.ifs)}),
-                                                                acc
-                                                            ), [])
-                                                        : [{query}];
+                                                (query['$expr'] && query['$expr']['$cond']) 
+                                                    ? getPossibleExpressions(query['$expr'])
+                                                        .map((val: Expression) => (
+                                                            delete query.$expr,
+                                                            {query: {...query, ...val.expr}, ifs: convertIfsToQueries(val.ifs)}
+                                                        ))
+                                                    : []

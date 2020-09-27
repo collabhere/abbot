@@ -98,9 +98,7 @@ describe("convertQueryExpressions", () => {
         const expressionsObject = convertQueryExpressions(query);
         expect(expressionsObject).to.exist;
         expect(expressionsObject).to.be.an('array');
-        expect(expressionsObject.length).to.eq(1);
-        expect(expressionsObject[0]).to.not.haveOwnProperty('ifs');
-        expect(expressionsObject[0]).to.haveOwnProperty('query');
+        expect(expressionsObject.length).to.eq(0);
     });
 });
 
