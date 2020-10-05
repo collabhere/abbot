@@ -23,9 +23,9 @@ export const traverseCondition = (condition: {[K: string]: any}, path: string, p
 /**
  * Converts an array of expressions to an object with all 'if' queries as a separate key
  * @param {Array.<Object>} expressionsArray - An array containing if queries and the final expression
- * @returns {Array.<Expression>} - An array of objects of the form: {ifs: [], expr: {}}   
+ * @returns {Expression} - An object of the form: {ifs: [], expr: {}}   
  */
-export const segregateIfs = (expressionsArray: {[k: string]: any}[]): Array<Expression> => {
+export const segregateIfs = (expressionsArray: {[k: string]: any}[]): Expression => {
 
     return  expressionsArray.reduce((queryAcc: any, query: any) => 
                                ((expressionsArray[expressionsArray.length - 1] === query) 
@@ -54,7 +54,7 @@ export const getPossibleExpressions = (expression: {[k: string]: any}): Array<Ex
     return stringifiedQueriesArr
             .map(val => val.split('->')
                 .map((splitPath: string) => JSON.parse(splitPath)))
-            .map((queryArr: {[k: string]: any}[]) => segregateIfs(queryArr)) as unknown as Array<Expression>;
+            .map((queryArr: {[k: string]: any}[]) => segregateIfs(queryArr));
 }
 
 /**
