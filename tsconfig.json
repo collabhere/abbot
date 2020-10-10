@@ -10,10 +10,14 @@
 		"experimentalDecorators": true,
 		"noImplicitAny": true,
 		"declaration": true,
+		"alwaysStrict": true,
 		"lib": [
 			"dom",
 			"es6"
 		]
+	},
+	"ts-node": {
+		"transpileOnly": true
 	},
 	"include": [
 		"src/**/*.ts",
