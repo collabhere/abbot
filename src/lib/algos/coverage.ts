@@ -5,7 +5,8 @@ import { Reporter } from "../reporter";
 export const coverageForIndex = (reporter: Reporter) => (
 	indexName: string,
 	indexKeys: any,
-	queryFieldTypes: IQueryFieldTypes
+	queryFieldTypes: IQueryFieldTypes,
+	projection: any
 ) => {
 
 	const isUsed = (key: string) =>
@@ -24,6 +25,23 @@ export const coverageForIndex = (reporter: Reporter) => (
 			);
 
 	if (unusedFields && unusedFields.length) {
+
 		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELD, unusedFields);
-	}
+		
+	} else if (Object.keys(projection).length > 0){
+
+		const indexFields = Object.keys(indexKeys);
+		const uncoveredProjectedFields = Object.keys(projection).filter((key) => !indexFields.includes(key));
+
+		if (uncoveredProjectedFields && uncoveredProjectedFields.length > 0) {
+
+			if (uncoveredProjectedFields.length !== 1 || uncoveredProjectedFields[0] !== '_id') 
+				//suggest removing uncovered fields from projection
+				reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_PROJECTION, uncoveredProjectedFields);
+
+		} else if (uncoveredProjectedFields && uncoveredProjectedFields.length === 0) {
+			//suggest adding _id:0 to projection
+			reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_ID_PROJECTION);
+		}
+	} 
 }

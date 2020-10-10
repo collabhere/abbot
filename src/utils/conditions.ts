@@ -22,22 +22,16 @@ export const traverseCondition = (condition: {[K: string]: any}, path: string, p
 
 /**
  * Converts an array of expressions to an object with all 'if' queries as a separate key
- * @param {Array.<Array.<Object>>} expressionsArray - A 2D array containing queries in all possible expressions
- * @returns {Array.<Expression>} - An array of objects of the form: {ifs: [], expr: {}}   
+ * @param {Array.<Object>} expressionsArray - An array containing if queries and the final expression
+ * @returns {Expression} - An object of the form: {ifs: [], expr: {}}   
  */
-export const segregateIfs = (expressionsArray: [{[k: string]: any}]): Array<Expression> => {
+export const segregateIfs = (expressionsArray: {[k: string]: any}[]): Expression => {
 
-    return expressionsArray.reduce((acc:any, queryCombination: any) => {
-               let exprObj =  queryCombination.reduce((queryAcc: any, query: any) => 
-                               ((queryCombination[queryCombination.length - 1] === query) 
+    return  expressionsArray.reduce((queryAcc: any, query: any) => 
+                               ((expressionsArray[expressionsArray.length - 1] === query) 
                                    ? queryAcc.expr = query
                                    : queryAcc.ifs.push(query), queryAcc),
                                {ifs: [], expr: {}});
-   
-               acc.push(exprObj);
-               return acc;
-   
-           }, []);
 }
 
 /**
@@ -47,27 +41,20 @@ export const segregateIfs = (expressionsArray: [{[k: string]: any}]): Array<Expr
  */
 export const getPossibleExpressions = (expression: {[k: string]: any}): Array<Expression> => {
     let path = '';
-    let arr: any[] = [];
+    let stringifiedQueriesArr: any[] = [];
 
     const finalExpression = (expression.$cond && Array.isArray(expression.$cond)) 
                             ? {$cond: {if: expression.$cond[0], then: expression.$cond[1], else: expression.$cond[2]}}
                             : expression;
 
-    traverseCondition(finalExpression, path, arr);
-
-    const queriesArr = arr.reduce((acc, val) => {
-
-        //Convert a path string where elements are concatenated by '->' to an array of queries 
-        const splitArr: any[] = val.split('->');
-        const queryArr = splitArr.reduce((accltr, value) => (accltr.push(JSON.parse(value)), accltr), []);
-
-        acc.push(queryArr);
-        return acc;
-    }, []);
-
-    const queriesObj = segregateIfs(queriesArr);
-
-    return queriesObj;
+    traverseCondition(finalExpression, path, stringifiedQueriesArr);
+    
+    /* Convert a path string where elements are concatenated by '->' to an array of queries
+       and separate the if queries with the final expression. */
+    return stringifiedQueriesArr
+            .map(val => val.split('->')
+                .map((splitPath: string) => JSON.parse(splitPath)))
+            .map((queryArr: {[k: string]: any}[]) => segregateIfs(queryArr));
 }
 
 /**
@@ -79,26 +66,22 @@ export const convertIfsToQueries = (ifConditions: {[k:string]: any}[]): {[k:stri
 
     const isQueryField = (field: any) => (typeof field !== 'object' && field[0] === '$') ? true: false;
 
-    const queries = ifConditions.reduce((accltr: any, ifObject: any) => {
+    const queries = ifConditions.map((ifObject: any) => {
 
         let ifConditions: any[] = ifObject.$and ? ifObject.$and : [ifObject];
 
-        const query = ifConditions.reduce((acc: any, cond: any) => {
-                            const operator = Object.keys(cond)[0];
+        return ifConditions.reduce((acc: any, cond: any) => {
+                        const operator = Object.keys(cond)[0];
 
-                            if (isQueryField(cond[operator][0])) {
-                                acc[cond[operator][0].replace('$','')] = {[operator]: cond[operator][1]};
-                            } else if (isQueryField(cond[operator][1])) {
-                                acc[cond[operator][1].replace('$','')] = {[operator]: cond[operator][0]};
-                            }
-                            
-                            return acc;
-                        }, {});
-
-        accltr.push(query);        
-        return accltr;
-
-    }, []);
+                        if (isQueryField(cond[operator][0])) {
+                            acc[cond[operator][0].replace('$','')] = {[operator]: cond[operator][1]};
+                        } else if (isQueryField(cond[operator][1])) {
+                            acc[cond[operator][1].replace('$','')] = {[operator]: cond[operator][0]};
+                        }
+                        
+                        return acc;
+                    }, {});
+    });
     
     return queries;
 }         
