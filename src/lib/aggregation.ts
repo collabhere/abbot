@@ -13,11 +13,12 @@ function between(x: number, min: number, max: number) {
 
 export const Aggregation = () => ({
     //either convert this to a class or create a constructor of sorts that stores pipelineStage & pipelineQuery
-    sortLimitCoalescence: function(pipelineStage : any[], pipelineQuery: any[]) {
-        let sortIndexes = getMatchIndexes(pipelineStage, '$sort');
-        let limitIndexes = getMatchIndexes(pipelineStage, '$limit');
-        let groupIndexes = getMatchIndexes(pipelineStage, '$group');
-        let unwindIndexes = getMatchIndexes(pipelineStage, '$unwind');
+    _pipeline : {},
+    sortLimitCoalescence: function() {
+        let sortIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$sort');
+        let limitIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$limit');
+        let groupIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$group');
+        let unwindIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$unwind');
 
         if(sortIndexes.length && limitIndexes.length) { //we will apply sort limit coalescence
             while((sortIndexes.length + limitIndexes.length) != 0) {
@@ -26,95 +27,97 @@ export const Aggregation = () => ({
                 let groupval = groupIndexes.pop();
                 let unwindval = unwindIndexes.pop();
                 if(sortval >=0 && limitval >=0 
-                    && sortval <= pipelineStage.length && limitval <= pipelineStage.length
+                    && sortval <= this.pipeline['pipelineStage'].length && limitval <= this.pipeline['pipelineStage'].length
                     && sortval < limitval
                     && !between(groupval, sortval, limitval)
                     && !between(unwindval, sortval, limitval)) { //we'll perform coalesce
-                        pipelineQuery[sortval]['limit'] = pipelineQuery[limitval]
-                        pipelineStage.splice(sortval, 1);
-                        pipelineQuery.splice(limitval, 1); 
+                        this.pipeline['pipelineQuery'][sortval]['limit'] = this.pipeline['pipelineQuery'][limitval]
+                        this.pipeline['pipelineStage'].splice(limitval, 1);
+                        this.pipeline['pipelineQuery'].splice(limitval, 1); 
                     }
             }
         }
     },
-    limitLimitCoalescence: function (pipelineStage: any[], pipelineQuery: any[]) {
-        let limitIndexes = getMatchIndexes(pipelineStage, '$limit');
+    limitLimitCoalescence: function () {
+        let limitIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$limit');
         if(limitIndexes.length) {
             for(let i=0; i<limitIndexes.length-1; i++) {
                 let currentval = limitIndexes[i];
                 let nextval = limitIndexes[i+1];
                 if (currentval >= 0 && nextval >= 0 && nextval-currentval == 1) { //if 2 limit's are consecutive then we will coalesce
-                    pipelineQuery[currentval] = pipelineQuery[currentval]<pipelineQuery[nextval] ? pipelineQuery[currentval] : pipelineQuery[nextval] //smaller of the 2 values is taken
-                    pipelineStage.splice(nextval, 1);
-                    pipelineQuery.splice(nextval, 1);
+                    this.pipeline['pipelineQuery'][currentval] = this.pipeline['pipelineQuery'][currentval] < this.pipeline['pipelineQuery'][nextval] ? this.pipeline['pipelineQuery'][currentval] : this.pipeline['pipelineQuery'][nextval] //smaller of the 2 values is taken
+                    this.pipeline['pipelineStage'].splice(nextval, 1);
+                    this.pipeline['pipelineQuery'].splice(nextval, 1);
                 }
             }
         }
     },
-    skipSkipCoalescence: function (pipelineStage: any[], pipelineQuery: any[]) {
-        let skipIndexes = getMatchIndexes(pipelineStage, '$skip');
+    skipSkipCoalescence: function () {
+        let skipIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$skip');
         if(skipIndexes.length) {
             for (let i = 0; i < skipIndexes.length - 1; i++) {
                 let currentval = skipIndexes[i];
                 let nextval = skipIndexes[i + 1];
                 if (currentval >= 0 && nextval >= 0 && nextval - currentval == 1) { //if 2 skips's are consecutive then we will coalesce
-                    pipelineQuery[currentval] = pipelineQuery[currentval] + pipelineQuery[nextval] //add the 2 skip values
-                    pipelineStage.splice(nextval, 1);
-                    pipelineQuery.splice(nextval, 1);
+                    this.pipeline['pipelineQuery'][currentval] = this.pipeline['pipelineQuery'][currentval] + this.pipeline['pipelineQuery'][nextval] //add the 2 skip values
+                    this.pipeline['pipelineStage'].splice(nextval, 1);
+                    this.pipeline['pipelineQuery'].splice(nextval, 1);
                 }
             }
         }
     },
-    matchMatchCoalescence: function (pipelineStage: any[], pipelineQuery: any[]) {
-        let matchIndexes = getMatchIndexes(pipelineStage, '$match');
+    matchMatchCoalescence: function () {
+        let matchIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$match');
         if(matchIndexes) {
             for (let i = 0; i < matchIndexes.length - 1; i++) {
                 let currentval = matchIndexes[i];
                 let nextval = matchIndexes[i + 1];
                 if (currentval >= 0 && nextval >= 0 && nextval - currentval == 1) { //if 2 match stages are consecutive then we will coalesce
                     let newMatchObj : any = new Object();
-                    newMatchObj['$and'] = [pipelineQuery[currentval], pipelineQuery[nextval]]; 
-                    pipelineQuery[currentval] = newMatchObj //combine the match stages
-                    pipelineStage.splice(nextval, 1);
-                    pipelineQuery.splice(nextval, 1);
+                    newMatchObj['$and'] = [this.pipeline['pipelineQuery'][currentval], this.pipeline['pipelineQuery'][nextval]]; 
+                    this.pipeline['pipelineQuery'][currentval] = newMatchObj //combine the match stages
+                    this.pipeline['pipelineStage'].splice(nextval, 1);
+                    this.pipeline['pipelineQuery'].splice(nextval, 1);
                 }
             }
         }
     },
-    lookupUnwindCoalescence: function (pipelineStage: any[], pipelineQuery: any[]) {
-        let lookupIndexes = getMatchIndexes(pipelineStage, '$lookup');
-        let unwindIndexes = getMatchIndexes(pipelineStage, '$unwind');
+    lookupUnwindCoalescence: function () {
+        let lookupIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$lookup');
+        let unwindIndexes = getMatchIndexes(this.pipeline['pipelineStage'], '$unwind');
         if (lookupIndexes.length && unwindIndexes.length) { //we will apply sort limit coalescence
             while ((lookupIndexes.length + unwindIndexes.length) != 0) {
                 let lookupval = lookupIndexes.pop();
                 let unwindval = unwindIndexes.pop();
                 if (lookupval >= 0 && unwindval >= 0
-                    && lookupval <= pipelineStage.length && unwindval <= pipelineStage.length
+                    && lookupval <= this.pipeline['pipelineStage'].length && unwindval <= this.pipeline['pipelineStage'].length
                     && unwindval - lookupval == 0) { //we'll perform coalesce
-                    pipelineQuery[lookupval]['unwinding'] = { preserveNullAndEmptyArrays: false }
-                    pipelineStage.splice(unwindval, 1);
-                    pipelineQuery.splice(unwindval, 1);
+                    this.pipeline['pipelineQuery'][lookupval]['unwinding'] = { preserveNullAndEmptyArrays: false }
+                    this.pipeline['pipelineStage'].splice(unwindval, 1);
+                    this.pipeline['pipelineQuery'].splice(unwindval, 1);
                 }
             }
         }
     },
-    coalescenceCheck: function (pipeline: any[]) {
+    coalescenceConverter: function (pipeline: any[]) {
         let finalquery : any[] = [];
         var pipelineStage : any[] = pipeline.map(x => Object.keys(x)[0]);
         var pipelineQuery : any[] = pipeline.map(x => Object.values(x)[1]);
+        this.pipeline['pipelineStage'] = pipelineStage;
+        this.pipeline['pipelineQuery'] = pipelineQuery;
         //--------------------------
         //call all coalescence functions and update pipelineStage & pipelineQuery
-        this.sortLimitCoalescence(pipelineStage, pipelineQuery)
-        this.limitLimitCoalescence(pipelineStage, pipelineQuery)
-        this.skipSkipCoalescence(pipelineStage, pipelineQuery)
-        this.matchMatchCoalescence(pipelineStage, pipelineQuery)
-        this.lookupUnwindCoalescence(pipelineStage, pipelineQuery)
+        this.sortLimitCoalescence()
+        this.limitLimitCoalescence()
+        this.skipSkipCoalescence()
+        this.matchMatchCoalescence()
+        this.lookupUnwindCoalescence()
         
         //add everything in finalquery and return it
-        if(pipelineStage.length == pipelineQuery.length) {
-            for(let i=0; i<pipelineStage.length; i++) {
+        if (this.pipeline['pipelineStage'].length == this.pipeline['pipelineQuery'].length) {
+            for (let i = 0; i < this.pipeline['pipelineStage'].length; i++) {
                 let query : any = new Object();
-                query[pipelineStage[i]] = pipelineQuery[i];
+                query[this.pipeline['pipelineStage'][i]] = this.pipeline['pipelineQuery'][i];
                 finalquery.push(query);
             }
         }

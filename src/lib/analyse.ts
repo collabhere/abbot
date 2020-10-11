@@ -5,6 +5,7 @@ import { StoredCollection, StoredIndex } from "../utils/types";
 import { convertQueryExpressions, convertIfsToQueries } from "../utils/conditions";
 import { Reporter } from "./reporter";
 import { createAlgos, Algorithms } from "./algos";
+import { Aggregation } from "./aggregation";
 
 const runQueryAnalysisForIndex = (
 	algos: Algorithms,
@@ -167,18 +168,19 @@ export const Analyse = () => {
 	return {
 		query: middleware(analyseQuery(reporter), 'query'),
 		count: () => () => { },
-		aggregation: middleware(analyseQuery(reporter), 'aggregation'),
+		aggregation: middleware(analyseAggregation(reporter), 'aggregation'),
 		report: reporter.report
 	};
 }
 
 
 export const middleware = (func: any, type: any) => (...args: any) => {
-
+	const aggregation = Aggregation();
 	if (type === 'query') {
 		args[0].conditions = convertQueryExpressions(args.query);
 	} else {
 		// @todo: write aggregations logic
+		args[0].condiions = aggregation.coalescenceConverter(args.pipeline);
 	}
 
 	return func(...args);
