@@ -15,7 +15,7 @@ const runQueryAnalysisForIndex = (
 
 	const fieldTypes = getQueryFieldTypes(query, sort);
 
-	algos.coverage(name, key, fieldTypes);
+	algos.coverage(name, key, fieldTypes, projection);
 
 	algos.position(name, key, fieldTypes);
 
@@ -26,7 +26,6 @@ const getNewIndexSuggestions = (
 	algos: Algorithms,
 	query: any,
 	sort: any,
-	projection: any
 ) => ({ name, key }: StoredIndex) => {
 
 	const fieldTypes = getQueryFieldTypes(query, sort);
@@ -81,7 +80,7 @@ const analyseQuery = (reporter: Reporter) => async ({
 	} else {
 		// No indexes found to support this query.
 		// Proceed to determining the most optimal index for this query by ESR.
-		getNewIndexSuggestions(algos, query, sort, projection);
+		getNewIndexSuggestions(algos, query, sort);
 	}
 }
 
