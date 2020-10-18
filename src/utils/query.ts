@@ -30,3 +30,12 @@ export const getQueryFieldTypes = (
 	return { equality, sort, range };
 }
 
+export const checkQueryForIndexedField = (query: {[k: string]: any}, indexKeys: {[k:string]: 1|-1}) => {
+    const sortKeys = Object.keys(query);
+    for (const key in indexKeys) {
+        if (sortKeys.includes(key)) return true;
+    }
+
+    return false;
+}
+
