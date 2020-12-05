@@ -132,6 +132,30 @@ export const coalescenceConverter = (pipeline: any[]) => {
 	return finalPipeline;
 }
 
+const INDEX_BREAKING_STAGES = ["$unwind"];
+
+export const splitPipeline = function (pipeline: any[]): [any[], any[]] {
+	const indexSafeStages = [];
+	let breakpoint = -1;
+	const indexUnsafeStages = [];
+	for (let i = 0; i < pipeline.length; ++i) {
+		for (let breaker of INDEX_BREAKING_STAGES) {
+			if (pipeline[i][breaker]) {
+				breakpoint = i;
+				break;
+			}
+			indexSafeStages.push(pipeline[i]);
+		}
+		/* not sure if break above will break out of both loops */
+		if (breakpoint >= 0) break;
+	}
+	if (breakpoint >= 0) {
+		indexUnsafeStages.push(...pipeline.slice(breakpoint));
+	}
+	return [indexSafeStages, indexUnsafeStages];
+}
+
+
 //class PipelineSequenceOptimization {
 //	pipeline: any;
 
