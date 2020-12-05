@@ -1,11 +1,21 @@
-import { STORE_LOCATION } from "../utils/constants";
+import {
+	STORE_LOCATION
+} from "../utils/constants";
 
 import { getQueryFieldTypes } from "../utils/query";
 import { StoredCollection, StoredIndex } from "../utils/types";
-import { convertQueryExpressions, convertIfsToQueries } from "../utils/conditions";
+import { convertQueryExpressions } from "../utils/conditions";
+import { coalescenceConverter } from "../utils/aggregation";
+
 import { Reporter } from "./reporter";
 import { createAlgos, Algorithms } from "./algos";
-import { Aggregation } from "./aggregation";
+
+const runAggregationAnalysisForIndex = (
+	algos: Algorithms,
+	split: [any[], any[]]
+) => ({ name, key }: StoredIndex) => {
+	algos.aggregation.matchBeforeGroup(name, key, split);
+}
 
 const runQueryAnalysisForIndex = (
 	algos: Algorithms,
@@ -16,22 +26,22 @@ const runQueryAnalysisForIndex = (
 
 	const fieldTypes = getQueryFieldTypes(query, sort);
 
-	algos.coverage(name, key, fieldTypes, projection);
+	algos.find.coverage(name, key, fieldTypes, projection);
 
-	algos.position(name, key, fieldTypes);
+	algos.find.position(name, key, fieldTypes);
 
-	algos.streak(name, key, fieldTypes);
+	algos.find.streak(name, key, fieldTypes);
 }
 
 const getNewIndexSuggestions = (
 	algos: Algorithms,
 	query: any,
 	sort: any,
-) => ({ name, key }: StoredIndex) => {
+) => (index: StoredIndex) => {
 
 	const fieldTypes = getQueryFieldTypes(query, sort);
 
-	algos.newIndexes(fieldTypes);
+	algos.esr(fieldTypes);
 }
 
 export interface Analyse$Query {
@@ -42,26 +52,28 @@ export interface Analyse$Query {
 	conditions?: any
 };
 
-const analyseQuery = (reporter: Reporter) => async ({
+const analyseQuery = () => ({
 	collection, query,
 	sort, projection, conditions
 }: Analyse$Query) => {
 
-	const algos = createAlgos(reporter);
-
-	reporter.setup(
+	const reporter = Reporter(
 		collection, query,
 		sort, projection,
-	)
+	);
 
-	const indexes: StoredCollection = await import(`${STORE_LOCATION}/${collection}.json`);
+	const indexes: StoredCollection = require(`${STORE_LOCATION}/${collection}.json`);
 
 	/* Filter indexes that will actually be used by mongo to support this query, i.e. indexes which have the first key in the query */
 	const testableIndexes = indexes[collection].filter(index => (Object.keys(index.key) && Object.keys(index.key)[0]));
 
+	const algos = createAlgos(reporter);
+
 	if (testableIndexes && testableIndexes.length) {
 		// Run analysis for each index and derive suggestions using report builder module.
 		if (conditions && conditions.length) {
+			reporter.context(query);
+
 			testableIndexes.forEach((index) => {
 				conditions.forEach((query: any) => {
 					// Run analysis for each element in the 'ifs' array
@@ -73,87 +85,87 @@ const analyseQuery = (reporter: Reporter) => async ({
 			});
 		}
 		else {
+			reporter.context(query);
+
 			testableIndexes.forEach(
 				runQueryAnalysisForIndex(algos, query, sort, projection)
 			);
 		}
 
 	} else {
+		reporter.context(query);
+
 		// No indexes found to support this query.
 		// Proceed to determining the most optimal index for this query by ESR.
 		getNewIndexSuggestions(algos, query, sort);
 	}
 }
 
-const formatPipeline = function(pipeline : any[]) {
-	let formattedStages : any[] = [];
-	pipeline.forEach(stage => {
-		let pipelineStage = Object.keys(stage)[0];
-		let pipelineQuery = Object.values(stage)[0];
-		/* To Do - Add more aggregation stages */
-		switch (pipelineStage) {
-			case('$match'): {
-				formattedStages.push(pipelineQuery);
-			}
-			case('$group'): {
-				//$first in group stage uses index, add conditions for that.
+const INDEX_BREAKING_STAGES = ["$unwind"];
+
+const splitPipeline = function (pipeline: any[]): [any[], any[]] {
+	const indexSafeStages = [];
+	let breakpoint = -1;
+	const indexUnsafeStages = [];
+	for (let i = 0; i < pipeline.length; ++i) {
+		for (let breaker of INDEX_BREAKING_STAGES) {
+			if (pipeline[i][breaker]) {
+				breakpoint = i;
 				break;
 			}
-			case('$project'): {
-				formattedStages.push(pipelineQuery);
-			}
-			case('$sort'): {
-				formattedStages.push(pipelineQuery);
-			}
-			case('$unwind'): {
-				break;
-			}
-			case('$lookup'): {
-				/* Will have to recursively call this function if lookup has many pipelines */
-			}
-			default: {
-				throw new Error(`Pipeline stage has not been configured for ${stage} stage`);
-			}
+			indexSafeStages.push(pipeline[i]);
 		}
-	})
-	return formattedStages;
+		/* not sure if break above will break out of both loops */
+		if (breakpoint >= 0) break;
+	}
+	if (breakpoint >= 0) {
+		indexUnsafeStages.push(...pipeline.slice(breakpoint));
+	}
+	return [indexSafeStages, indexUnsafeStages];
 }
 
 export interface Analyse$Aggregation {
-	collection : string,
-	pipeline : any
+	collection: string,
+	pipeline: any
 }
 
-const analyseAggregation = (reporter : Reporter) => async ({
+const analyseAggregation = () => ({
 	collection,
 	pipeline
-} : Analyse$Aggregation) => {
+}: Analyse$Aggregation) => {
+
+	const reporter = Reporter(
+		collection, pipeline
+	);
 
 	const algos = createAlgos(reporter);
 
-	const formatedPipeline = formatPipeline(pipeline);
-
-	//To-Do Reporter setup
-
-	const indexes: StoredCollection = await import(`${STORE_LOCATION}/${collection}.json`);
+	const indexes: StoredCollection = require(`${STORE_LOCATION}/${collection}.json`);
 
 	/* Fitler indexes that will actually be used by mongo to support this query, i.e. indexes which have the first key in the query */
 	const testableIndexes = indexes[collection].filter(index => (Object.keys(index.key) && Object.keys(index.key)[0]));
 
 	if (testableIndexes && testableIndexes.length) {
+		const split = splitPipeline(pipeline);
 		// Run analysis for each index and derive suggestions using report builder module.
-		formatedPipeline.forEach(pipeline => {
-			if(Object.keys(pipeline).length && Object.values(pipeline).length) {
-				testableIndexes.forEach(
-					runQueryAnalysisForIndex(algos, pipeline, null, null)
-				);
-			}
-		})
-
+		testableIndexes.forEach(
+			runAggregationAnalysisForIndex(algos, split)
+		)
 	} else {
 		// No indexes found to support this query.
 		// Proceed to determining the most optimal index for this query by ESR.
 	}
+}
+
+
+const middleware = (func: any, type: any) => (...args: any) => {
+	if (type === 'query') {
+		args[0].conditions = convertQueryExpressions(args.query);
+	} else {
+		args[0].condiions = coalescenceConverter(args.pipeline);
+	}
+
+	return func(...args);
 }
 
 /**
@@ -164,25 +176,10 @@ const analyseAggregation = (reporter : Reporter) => async ({
  * @param projection 
  */
 export const Analyse = () => {
-	const reporter = Reporter();
 	return {
-		query: middleware(analyseQuery(reporter), 'query'),
-		count: () => () => { },
-		aggregation: middleware(analyseAggregation(reporter), 'aggregation'),
-		report: reporter.report
+		query: middleware(analyseQuery(), 'query'),
+		aggregation: middleware(analyseAggregation(), 'aggregation')
 	};
 }
 
-
-export const middleware = (func: any, type: any) => (...args: any) => {
-	const aggregation = Aggregation();
-	if (type === 'query') {
-		args[0].conditions = convertQueryExpressions(args.query);
-	} else {
-		// @todo: write aggregations logic
-		args[0].condiions = aggregation.coalescenceConverter(args.pipeline);
-	}
-
-	return func(...args);
-}
 

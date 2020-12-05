@@ -1,6 +1,6 @@
-import { IQueryFieldTypes } from "../../utils/types";
-import { SUGGESTION_TYPES } from "../../utils/constants";
-import { Reporter } from "../reporter";
+import { IQueryFieldTypes } from "../../../utils/types";
+import { SUGGESTION_TYPES } from "../../../utils/constants";
+import { Reporter } from "../../reporter";
 
 export const coverageForIndex = (reporter: Reporter) => (
 	indexName: string,
