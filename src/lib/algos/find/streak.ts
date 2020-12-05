@@ -1,6 +1,6 @@
-import { IQueryFieldTypes } from "../../utils/types";
-import { Reporter } from "../reporter";
-import { SUGGESTION_TYPES } from "../../utils/constants";
+import { IQueryFieldTypes } from "../../../utils/types";
+import { Reporter } from "../../reporter";
+import { SUGGESTION_TYPES } from "../../../utils/constants";
 
 export const checkStreak = (reporter: Reporter) => (
 	indexName: string,
