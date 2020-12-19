@@ -18,8 +18,8 @@ import { writeFileSync } from "fs";
 const REPORT_SYMBOL = Symbol("__report__")
 
 type ReportOptions = {
-	type: "stdout" | "file";
-	format: "json" | "txt";
+	type?: "stdout" | "file";
+	format?: "json" | "txt";
 	path?: string;
 };
 
@@ -35,58 +35,15 @@ export const Reporter = (
 			suggestions: []
 		} as { [k: string]: any },
 		suggest: (index: string, suggestion: string, fields?: string[]) => {
-			if (getReportProp("conditions").length > 0) {
-				setReportProp("suggestions", {
-					index,
-					fields,
-					suggestion,
-				})
-			} else {
-				setReportProp("suggestions", { index, fields, suggestion, })
-			}
+			setReportProp("suggestions", { suggestion, index, fields });
 		},
 		context: (ctx: any) => setReportProp("context", JSON.stringify(ctx)),
 		report: ({ type, format, path }: ReportOptions) => {
-			switch (format) {
-				//case "json": {
-				//	const json = JSON.stringify(this._report, null, 4);
-				//	switch (type) {
-				//		case "stdout": {
-				//			console.log(JSON.stringify(json, null, 2));
-				//			break;
-				//		}
-				//		case "file": {
-				//			if (!path)
-				//				throw new Error(
-				//					"Please provide a `path` value to `.report()` when using `file` type of reporting."
-				//				);
-				//			writeFileSync(path, json);
-				//			break;
-				//		}
-				//		default: {
-				//			throw new Error(
-				//				`Reporting type not implemented for format: ${format}.`
-				//			);
-				//		}
-				//	}
-				//	break;
-				//}
-				//case "txt": {
-				//	switch (type) {
-				//		default: {
-				//			throw new Error(
-				//				`Reporting type not implemented for format: ${format}.`
-				//			);
-				//		}
-				//	}
-				//	break;
-				//}
-				//default: {
-				//	throw new Error("Reporting format not implemented.");
-				//}
-			}
+			console.log(getReport());
 		}
 	};
+	
+	const getReport = () => reporter[REPORT_SYMBOL];
 	
 	const getReportProp = (prop: string) => reporter[REPORT_SYMBOL][prop];
 	

@@ -90,4 +90,6 @@ export const analyseQuery = () => ({
 		// Proceed to determining the most optimal index for this query by ESR.
 		getNewIndexSuggestions(algos, query, sort);
 	}
+	
+	reporter.report({});
 }

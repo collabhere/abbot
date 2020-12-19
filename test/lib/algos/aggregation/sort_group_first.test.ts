@@ -23,7 +23,7 @@ describe("SortBeforeGroupFirst", () => {
 
         const reporter = mockReporter('suggest', (index, type, fields) => {
             expect(index).to.eq("sortIndex");
-            expect(type).to.eq(SUGGESTION_TYPES.SORT_GROUP_FIRST);
+            expect(type).to.eq(SUGGESTION_TYPES.SORT_BEFORE_GROUP_FIRST);
             expect(fields).to.be.an('array');
             expect(fields.length).to.eq(1);
             expect(fields[0]).to.eq("field1");

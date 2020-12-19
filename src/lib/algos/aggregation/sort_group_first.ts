@@ -2,32 +2,56 @@ import { Reporter } from "../../../lib/reporter";
 import { SUGGESTION_TYPES } from "../../../utils/constants";
 import { checkQueryForIndexedField } from "../../../utils/query";
 
+import { isObj } from "../../../utils";
+
+const FIRST_RGX = new RegExp(/\$first/g);
+
 export const sortBeforeGroupFirst = (reporter: Reporter) => (
-	indexName: string,
-	indexKeys: { [k: string]: 1 | -1 },
 	[indexedList, unindexedList]: { [k: string]: any }[][]
 ) => {
 
-	let needToReport = true;
-	let firstField: string;
-	unindexedList.reduce((acc: any[], val: { [k: string]: any }) => {
-		if (val.$group && new RegExp(/\$first/g).test(JSON.stringify(val.$group))) {
-			Object.keys(val.$group).forEach((key) => {
+	//let needToReport = true;
+	//let firstField: string;
 
-				if (val.$group[key]['$first'])
-					firstField = val.$group[key]['$first'].substring(1);
+	//const sortKeys =
+	//	unindexedList
+	//		.filter(val => val.$sort)
+	//		.map(stage => Object.keys(stage.$sort))
+	//		.flat(1);
 
-				if (firstField)
-					needToReport = false;
-			});
+	//const groups = unindexedList.map((val, i) => {
+	//	if (val.$group) {
+	//		return { $group: val.$group, pos: i }
+	//	}
+	//}).filter(Boolean);
 
-		} else if (val.$sort && checkQueryForIndexedField(val.$sort, indexKeys)) {
-			acc.push(...Object.keys(val.$sort));
-		}
+	//if (sortKeys.length && groups.length) {
+	//	groups.forEach(group => {
+	//		if (FIRST_RGX.test(JSON.stringify(group.$group))) {
+	//			const groupedBy = group.$group._id;
+	//			if (isObj(groupedBy)) {
+	//				if (
+	//					checkQueryForIndexedField(groupedBy, indexKeys) // Grouped by a key in the index
+	//					&& sortKeys.some(key => groupedBy === key) // Grouped by a key that is a part of some sort
+	//				) {
+						
+	//				}
+	//			} else if (typeof groupedBy === "string") {
+	//				const field = groupedBy.replace(/^\$/g, '');
+	//				const keys = Object.keys(indexKeys);
+	//				const matchingSort = sortKeys.find(key => field === key);
+	//				if (
+	//					keys.includes(field) // Grouped by a key in the index
+	//					&& (matchingSort && matchingSort.length === 1) // Grouped by a key that is a part of some sort
+	//				) {
+	//					const pipeline = indexedList.concat(unindexedList);
+						
+						
+	//				}
+	//			}
+	//		}
+	//	});
+	//}
 
-		return acc;
-
-	}, []) as string[];
-
-	if (needToReport) reporter.suggest(indexName, SUGGESTION_TYPES.SORT_GROUP_FIRST, [firstField]);
+	//if (needToReport) reporter.suggest(indexName, SUGGESTION_TYPES.SORT_BEFORE_GROUP_FIRST, [firstField]);
 }

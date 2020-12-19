@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { mockReporter } from "../../../mock/reporter";
-import { matchBeforeGroup } from "../../../../src/lib/algos/aggregation/match_group";
+import { matchBeforeGroup } from "../../../../src/lib/algos/aggregation/match_before_group";
 import { MongoIndexKey } from "../../../../src/utils/types";
 import { SUGGESTION_TYPES } from '../../../../src/utils/constants';
 
@@ -25,7 +25,7 @@ describe("MatchBeforeGroup", () => {
         const reporter = mockReporter('suggest', (index, type, fields) => {
             expect(fields).to.exist;
             expect(index).to.eq("fieldIndex");
-            expect(type).to.eq(SUGGESTION_TYPES.MATCH_BEFORE_EVERYTHING)
+            expect(type).to.eq(SUGGESTION_TYPES.MATCH_BEFORE_GROUP)
             expect(fields).to.haveOwnProperty('field1');
             expect(fields).to.not.haveOwnProperty("fieldToCheck");
         });

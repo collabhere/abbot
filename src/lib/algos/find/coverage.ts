@@ -6,7 +6,7 @@ export const coverageForIndex = (reporter: Reporter) => (
 	indexName: string,
 	indexKeys: any,
 	queryFieldTypes: IQueryFieldTypes,
-	projection: any
+	projection?: any
 ) => {
 
 	const isUsed = (key: string) =>
@@ -26,9 +26,9 @@ export const coverageForIndex = (reporter: Reporter) => (
 
 	if (unusedFields && unusedFields.length) {
 
-		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELD, unusedFields);
+		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELDS_TO_INDEX, unusedFields);
 
-	} else if (Object.keys(projection).length > 0) {
+	} else if (projection && Object.keys(projection).length > 0) {
 
 		const indexFields = Object.keys(indexKeys);
 		const uncoveredProjectedFields = Object.keys(projection).filter((key) => !indexFields.includes(key));
@@ -37,11 +37,11 @@ export const coverageForIndex = (reporter: Reporter) => (
 
 			if (uncoveredProjectedFields.length !== 1 || uncoveredProjectedFields[0] !== '_id')
 				//suggest removing uncovered fields from projection
-				reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_PROJECTION, uncoveredProjectedFields);
+				reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_FIELDS_FROM_PROJECTION, uncoveredProjectedFields);
 
 		} else if (uncoveredProjectedFields && uncoveredProjectedFields.length === 0) {
-			//suggest adding _id:0 to projection
-			reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_ID_PROJECTION);
+			// suggest adding _id:0 to projection
+			reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_ID_PROJECTION_FROM_PROJECTION);
 		}
 	}
 }

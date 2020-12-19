@@ -9,5 +9,5 @@ export const newIndexSuggestion = (reporter: Reporter) => (
 
 	const indexKeys = queryFields.reduce((acc, field) => (acc += acc ? ('_' + field + '_1') : (field + '_1'), acc), '');
 
-	reporter.suggest(indexKeys, SUGGESTION_TYPES.CREATE_INDEX);
+	reporter.suggest(indexKeys, SUGGESTION_TYPES.CREATE_ESR_INDEX);
 }

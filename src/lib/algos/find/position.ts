@@ -2,6 +2,8 @@ import { IQueryFieldTypes } from "../../../utils/types";
 import { Reporter } from "../../reporter";
 import { SUGGESTION_TYPES } from "../../../utils/constants";
 
+import { logger } from "../../logger";
+
 type HopItem = {
 	key: string;
 	position: number;
@@ -58,7 +60,6 @@ export const positionAnalysis = (reporter: Reporter) => (
 			.rangeHops
 			.filter(({ position }) => (position < details.rightMostEqualityPosition))
 			.map(k => k.key);
-
 	/**
 	 * Find sorts that are present in the wrong position, i.e. before equality or after ranges.
 	 */
@@ -69,10 +70,10 @@ export const positionAnalysis = (reporter: Reporter) => (
 			.map(k => k.key);
 
 	if (incorrectRangeKeys && incorrectRangeKeys.length) {
-		reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_OPERATION, incorrectRangeKeys);
+		reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_RANGE_TO_FOLLOW_ESR, incorrectRangeKeys);
 	}
 
 	if (incorrectSortKeys && incorrectSortKeys.length) {
-		reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_INDEX, incorrectSortKeys);
+		reporter.suggest(indexName, SUGGESTION_TYPES.CHANGE_SORT_KEYS_TO_FOLLOW_ESR, incorrectSortKeys);
 	}
 }
