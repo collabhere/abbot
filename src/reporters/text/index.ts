@@ -82,6 +82,7 @@ export = function() {
 		},
 		onComplete: (state: ReporterState) => {
 			if (state.txt) {
+				console.log("** ABBOT TEXT REPORTER **");
 				console.log(state.txt);
 			} else {
 				console.log("Nothing to report!");
