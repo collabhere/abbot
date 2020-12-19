@@ -15,6 +15,9 @@ function handleSuggestion(suggestion: Suggestion) {
 		case SUGGESTION_TYPES.ADD_FIELDS_TO_INDEX: {
 			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the index ${yellow(suggestion.index)} with any sorting order to utilize this index better.\n`;
 		}
+		case SUGGESTION_TYPES.CHANGE_RANGE_TO_FOLLOW_ESR: {
+			return `\nFor the index ${yellow(suggestion.index)}, some range fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. ${esrRuleLink()}\n`;
+		}
 		case SUGGESTION_TYPES.ADD_FIELD_FOR_COVERED_QUERY: {
 			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the index ${yellow(suggestion.index)} with any sorting order to utilize this index better.\n`;
 		}
