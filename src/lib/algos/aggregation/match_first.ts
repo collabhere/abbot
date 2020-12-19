@@ -17,7 +17,7 @@ export const matchAsFirstStage = (reporter: Reporter) => (
 			}
 		});
 		if (hasMatchInPipeline) {
-			reporter.suggest(undefined, SUGGESTION_TYPES.MOVE_MATCH_FIRST_STAGE, [JSON.stringify(pipeline[matchIndex])]);
+			reporter.suggest(undefined, SUGGESTION_TYPES.MOVE_MATCH_FIRST_STAGE, [JSON.stringify(pipeline[matchIndex]), JSON.stringify(unindexedList[0])]);
 		} else {
 			reporter.suggest(undefined, SUGGESTION_TYPES.ADD_MATCH_FIRST_STAGE, [JSON.stringify(indexedList)]);
 		}

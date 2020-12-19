@@ -31,6 +31,7 @@
   "homepage": "https://github.com/wheredevsdev/abbot#readme",
   "dependencies": {
     "@types/mongodb": "^3.5.26",
+    "colors": "^1.4.0",
     "mongodb": "^3.6.0",
     "object-hash": "^2.0.3"
   },

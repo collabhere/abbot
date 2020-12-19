@@ -8,14 +8,16 @@ export const matchBeforeGroup = (reporter: Reporter) => (
 	[indexedList, unindexedList]: { [k: string]: any }[][]
 ) => {
 
-	let acc: any = []
+	let group: any = undefined;
 	unindexedList.forEach((stage) => {
 		if (stage.$group) {
-			acc.push(...Object.keys(stage.$group));
-		} else if (stage.$match && Object.keys(stage.$match).includes(Object.keys(indexKeys)[0])) {
+			group = stage.$group;
+			//acc.push(...Object.keys(stage.$group));
+		} else if (stage.$match && Object.keys(stage.$match).includes(Object.keys(indexKeys)[0]) && group) {
 			Object.keys(stage.$match).forEach(q => {
+				const acc = Object.keys(group);
 				if (!acc.includes(q) && acc.length > 0) {
-					reporter.suggest(indexName, SUGGESTION_TYPES.MATCH_BEFORE_GROUP, stage.$match)
+					reporter.suggest(indexName, SUGGESTION_TYPES.MATCH_BEFORE_GROUP, [JSON.stringify(stage.$match), JSON.stringify(group)])
 				}
 			});
 		}

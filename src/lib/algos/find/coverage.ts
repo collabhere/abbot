@@ -41,7 +41,7 @@ export const coverageForIndex = (reporter: Reporter) => (
 
 		} else if (uncoveredProjectedFields && uncoveredProjectedFields.length === 0) {
 			// suggest adding _id:0 to projection
-			reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_ID_PROJECTION_FROM_PROJECTION);
+			reporter.suggest(indexName, SUGGESTION_TYPES.REMOVE_ID_PROJECTION_FROM_PROJECTION, [JSON.stringify(projection)]);
 		}
 	}
 }
