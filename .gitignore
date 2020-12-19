@@ -1,5 +1,3 @@
 node_modules
-store
-reports
 dist
 .nyc_output
