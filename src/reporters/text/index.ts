@@ -69,7 +69,7 @@ export = function() {
 	return {
 		onQuery: (state: ReporterState, info: ReporterType, first: boolean) => {
 			if (first) { // First call
-				state.txt =`\n\n${cyan(`Query: ${(truncate(info.query, 256))} \n\nConsider the following suggestions to improve this query's performance.\n`)}`;
+				state.txt =`\n\n${cyan(`Query: ${(truncate(info.query, 256))}`)}\n\nConsider the following suggestions to improve this query's performance.\n`;
 				
 				info.suggestions.forEach(s => {
 					state.txt += handleSuggestion(s);
