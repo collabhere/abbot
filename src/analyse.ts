@@ -20,7 +20,7 @@ export interface Analyse {
 	aggregation: (opts: Analyse$Aggregation) => void;
 }
 
-export default () => ({
+export const Analyse: Analyse = ({
 	query: middleware(analyseQuery(), 'query'),
 	aggregation: middleware(analyseAggregation(), 'aggregation')
-}) as Analyse;
+});

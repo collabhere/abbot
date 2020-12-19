@@ -1,4 +1,14 @@
-export const STORE_LOCATION = __dirname + "/../../store";
+import path from "path";
+
+export const ABBOT_FOLDER_NAME = ".abbot";
+
+export const STORE_LOCATION = path.join(process.cwd(), ABBOT_FOLDER_NAME, "store");
+
+export const ABBOT_PATH = path.join(process.cwd(), ABBOT_FOLDER_NAME);
+
+export const REPORTING_PATH = path.join(ABBOT_PATH, "reports");
+
+export const REPORT_INDEX_PATH = path.join(ABBOT_PATH, "reports.index");
 
 export const SUGGESTION_TYPES = {
 	ADD_FIELDS_TO_INDEX: "ADD_FIELDS_TO_INDEX",

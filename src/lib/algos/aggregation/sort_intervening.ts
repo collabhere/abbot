@@ -9,7 +9,7 @@ export const sortBeforeInterveningStages = (reporter: Reporter) => (
 ) => {
 	unindexedList.forEach((stage) => {
 		if (stage.$sort) {
-			reporter.suggest(undefined, SUGGESTION_TYPES.SORT_BEFORE_INTERVENE, Object.keys(stage.$sort));
+			reporter.suggest(undefined, SUGGESTION_TYPES.SORT_BEFORE_INTERVENE, [JSON.stringify(stage), JSON.stringify(unindexedList[0])]);
 		}
 	});
 }

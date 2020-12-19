@@ -1,32 +1,13 @@
 import fs from "fs";
 import hash from "object-hash";
+import path from "path";
 
-/*
-
-{
-	collection: "",
-	context: "",
-	type: "",
-	id: "",
-	conditions: [],
-	suggestions: [
-		{  }
-	]
-}
-
-*/
+import {
+	REPORTING_PATH,
+	REPORT_INDEX_PATH, 
+} from "../utils/constants";
 
 const REPORT_SYMBOL = Symbol("__report__");
-
-//const truncate = (str: string, len: number) => str.length > len ? str.substring(0, len) + "..." : str;
-
-const REPORTING_PATH = process.cwd() + "/.abbot";
-
-type ReportOptions = {
-	type?: "stdout" | "file";
-	format?: "json" | "txt";
-	path?: string;
-};
 
 export const Reporter = (
 	collection: string, query?: any,
@@ -45,17 +26,27 @@ export const Reporter = (
 		context: (ctx: any) => setReportProp("context", { hash: hash(ctx), command: JSON.stringify(ctx) }),
 		report: () => {
 			const report = getReport();
+			const hash = report.context.hash;
+			const command = report.context.command;
+
+			delete report.context;
 
 			if (fs.existsSync(REPORTING_PATH)) {
 				fs.rmdirSync(REPORTING_PATH, { recursive: true });
-				fs.mkdirSync(REPORTING_PATH + "/reports", { recursive: true });
+				fs.unlinkSync(REPORT_INDEX_PATH);
+				fs.mkdirSync(path.join(REPORTING_PATH), { recursive: true });
 			} else {
-				fs.mkdirSync(REPORTING_PATH + "/reports", { recursive: true });
+				fs.mkdirSync(path.join(REPORTING_PATH), { recursive: true });
 			}
 
-			fs.writeFileSync(REPORTING_PATH + "/reports/" + report.context.hash + ".json", JSON.stringify(report.suggestions));
-			fs.appendFileSync(REPORTING_PATH + "/reports.index", report.context.hash + ": " + JSON.stringify(report.context.command))
-			
+			fs.appendFileSync(
+				REPORT_INDEX_PATH,
+				hash + "| " + JSON.stringify(command)
+			);
+			fs.writeFileSync(
+				path.join(REPORTING_PATH, hash + ".json"),
+				JSON.stringify(report)
+			);
 		}
 	};
 
