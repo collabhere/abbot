@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import fs from "fs";
-import { PrepareOptions } from '../utils/types';
-import { STORE_LOCATION } from "../utils/constants";
+import { PrepareOptions } from './utils/types';
+import { STORE_LOCATION } from "./utils/constants";
 
 type ListIndexesResult = {
 	name: string;

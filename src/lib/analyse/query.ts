@@ -91,5 +91,5 @@ export const analyseQuery = () => ({
 		getNewIndexSuggestions(algos, query, sort);
 	}
 	
-	reporter.report({});
+	reporter.report();
 }

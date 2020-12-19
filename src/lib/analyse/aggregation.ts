@@ -21,6 +21,8 @@ export const analyseAggregation = () => ({
 	const reporter = Reporter(
 		collection, pipeline
 	);
+	
+	reporter.context(pipeline);
 
 	const algos = createAlgos(reporter);
 
@@ -38,5 +40,5 @@ export const analyseAggregation = () => ({
 		algos.aggregation.matchBeforeGroup(name, key, split);
 	});
 	
-	reporter.report({});
+	reporter.report();
 }

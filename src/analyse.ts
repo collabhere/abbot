@@ -1,9 +1,9 @@
 
-import { convertQueryExpressions } from "../utils/conditions";
-import { coalescenceConverter } from "../utils/aggregation";
+import { convertQueryExpressions } from "./utils/conditions";
+import { coalescenceConverter } from "./utils/aggregation";
 
-import { analyseQuery, Analyse$Query } from "./analyse/query";
-import { analyseAggregation, Analyse$Aggregation } from "./analyse/aggregation";
+import { analyseQuery, Analyse$Query } from "./lib/analyse/query";
+import { analyseAggregation, Analyse$Aggregation } from "./lib/analyse/aggregation";
 
 const middleware = (func: any, type: any) => (...args: any) => {
 	if (type === 'query') {

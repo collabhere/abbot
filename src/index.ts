@@ -1,5 +1,5 @@
-import { Prepare } from "./lib/prepare";
-import Analyse from "./lib/analyse";
+import { Prepare } from "./prepare";
+import Analyse from "./analyse";
 
 export = ({
 	analyse: Analyse(),
