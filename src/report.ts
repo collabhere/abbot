@@ -31,7 +31,7 @@ export const Report = (opts: ReportOptions) => {
 				const indexReader = createInterface({ input: fs.createReadStream(REPORT_INDEX_PATH) });
 
 				indexReader.on("line", line => {
-					const [fileName, query] = line.split(/*/(?<=\b[0-9a-f]{5,40}\b)(\|)/g*/"\|");
+					const [fileName, query] = line.split("\|");
 					const report = require(REPORTING_PATH + "/" + fileName + ".json");
 					
 					reporter.onQuery(state, {
