@@ -1,4 +1,4 @@
-import { yellow, blue } from "colors";
+import { yellow, blue, green, red, bgWhite, white, black, cyan } from "colors";
 
 import { SUGGESTION_TYPES } from "../../utils/constants";
 
@@ -6,7 +6,7 @@ type ReporterState = { txt?: string | undefined };
 
 interface Suggestion { suggestion: string; fields?: string[]; index: string }
 
-const truncate = (str: string, len: number) => str.length > len ? str.substring(0, len) + "..." : str;
+const truncate = (str: string, len: number) => str.length > len ? str.substring(0, len) + "... (truncated)" : str;
 
 const esrRuleLink = () => `(Read more about it here: ${blue("https://www.mongodb.com/blog/post/performance-best-practices-indexing")})`;
 
@@ -69,7 +69,7 @@ export = function() {
 	return {
 		onQuery: (state: ReporterState, info: ReporterType, first: boolean) => {
 			if (first) { // First call
-				state.txt =`\n\nQuery: ${truncate(info.query, 200)} \n\nConsider the following suggestions to improve this query's performance.\n`;
+				state.txt =`\n\n${cyan(`Query: ${(truncate(info.query, 256))} \n\nConsider the following suggestions to improve this query's performance.\n`)}`;
 				
 				info.suggestions.forEach(s => {
 					state.txt += handleSuggestion(s);
@@ -81,11 +81,11 @@ export = function() {
 			}
 		},
 		onComplete: (state: ReporterState) => {
+			console.log(cyan.bgBlack("\n\n** ABBOT REPORT **"));
 			if (state.txt) {
-				console.log("** ABBOT TEXT REPORTER **");
 				console.log(state.txt);
 			} else {
-				console.log("Nothing to report!");
+				console.log(red("\n\nCould not find anything to report.\n"));
 			}
 		}
 	}
