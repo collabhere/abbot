@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { mockReporter } from '../../mock/reporter';
-import { getPositionDetails, positionAnalysis } from '../../../src/lib/algos/position';
+import { mockReporter } from '../../../mock/reporter';
+import { getPositionDetails, positionAnalysis } from '../../../../src/lib/algos/find/position';
 
 describe ("GetPositionDetails", () => {
 
@@ -47,7 +47,7 @@ describe("PositionAnalysis", () => {
 
             expect(name).to.eq('TEST_INDEX');
             expect(fields).to.be.an('array');
-            expect(type).to.be.oneOf(['change_operation', 'change_index']);
+            expect(type).to.be.oneOf(['CHANGE_RANGE_TO_FOLLOW_ESR', 'CHANGE_SORT_KEYS_TO_FOLLOW_ESR']);
             expect(fields[0]).to.be.oneOf(['field_2', 'field_5']);
         });
 

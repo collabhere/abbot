@@ -10,7 +10,7 @@ describe("NewIndexSuggestions", () => {
         const queryFieldTypes = { equality: ['field1', 'field2'], sort: ['field3'], range: ['field4', 'field5']};
 
         const reporter = mockReporter("suggest", (name: 'string', type: string) => {
-            expect(type).to.eq('create_new_index');
+            expect(type).to.eq('CREATE_ESR_INDEX');
             expect(name).to.eq('field1_1_field2_1_field3_1_field4_1_field5_1');
         });
 
