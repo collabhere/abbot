@@ -64,7 +64,7 @@ npm install @wheredevsdev/abbot
 	```ts
 	import abbot from "@wheredevsdev/abbot";
 
-	const { analyse } = abbot;
+	const { analyse, report } = abbot;
 
 	function main() {
 		analyse.<operation>({ /* options */});
@@ -72,7 +72,7 @@ npm install @wheredevsdev/abbot
 		// ... You can call more operations
 
 		// and finally call
-		analyse.report({
+		report({
 			reporter: "text"
 		});
 	}
