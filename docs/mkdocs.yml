@@ -1,6 +1,6 @@
 site_name: Abbot
 docs_dir: 'pages'
-pages:
+nav:
   - 'Home': 'index.md'
   - 'Getting Started': 'getting-started.md'
   - 'Reference': 'api.md'
@@ -9,6 +9,8 @@ theme:
   name: material
   logo: ./img/abbotlogo.png
   favicon: ./img/abbotlogo.png
+  palette:
+    primary: indigo
   features:
     - navigation.tabs
     - navigation.instant
@@ -16,3 +18,5 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/wheredevsdev/abbot
+extra_css:
+  - stylesheets/extra.css
