@@ -40,7 +40,7 @@ export interface Analyse$Query {
 	query: any;
 	sort?: any;
 	projection?: any;
-	conditions?: any
+	conditions?: any;
 };
 
 export const analyseQuery = () => ({

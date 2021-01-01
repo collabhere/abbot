@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fetch } from '../../src/lib/prepare';
+import { fetch } from '../../src/prepare';
 import { mockMongoClient } from '../mock/mongoclient';
 import { mockFs } from '../mock/fs';
 import { MongoClient } from 'mongodb';
