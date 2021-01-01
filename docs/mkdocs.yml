@@ -5,6 +5,12 @@ pages:
   - 'Getting Started': 'getting-started.md'
   - 'Reference': 'api.md'
   - 'Concept': 'concept.md'
-theme: readthedocs
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.instant
 extra:
-  version: '0.8.0'
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/wheredevsdev/abbot
