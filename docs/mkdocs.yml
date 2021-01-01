@@ -1,0 +1,10 @@
+site_name: Abbot
+docs_dir: 'pages'
+pages:
+  - 'Home': 'index.md'
+  - 'Getting Started': 'getting-started.md'
+  - 'Reference': 'api.md'
+  - 'Concept': 'concept.md'
+theme: readthedocs
+extra:
+  version: '0.8.0'
