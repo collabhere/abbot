@@ -9,7 +9,7 @@ const middleware = (func: any, type: any) => (...args: any) => {
 	if (type === 'query') {
 		args[0].conditions = convertQueryExpressions(args[0].query);
 	} else {
-		args[0].condiions = coalescenceConverter(args[0].pipeline);
+		args[0].pipeline = coalescenceConverter(args[0].pipeline);
 	}
 
 	return func(...args);
