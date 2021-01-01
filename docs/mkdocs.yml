@@ -7,6 +7,8 @@ pages:
   - 'Concept': 'concept.md'
 theme:
   name: material
+  logo: ./img/abbotlogo.png
+  favicon: ./img/abbotlogo.png
   features:
     - navigation.tabs
     - navigation.instant
