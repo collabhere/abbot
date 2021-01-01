@@ -8,4 +8,4 @@ Abbot is built to work without any connections to a database and was originally 
 
 ---
 
-We're always opened to squash bugs and add features that would help the community. Feel free to raise an issue or pull request over on [github](https://github.com/wheredevsdev/abbot)
+We're always open to squash bugs and add features that would help the community. Feel free to raise an issue or pull request over on [GitHub](https://github.com/wheredevsdev/abbot).
