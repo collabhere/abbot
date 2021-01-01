@@ -1,8 +1,9 @@
 {
   "name": "abbot",
-  "version": "0.0.1",
+  "version": "0.8.0",
   "description": "Write better MongoDB queries",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "nyc mocha -r ts-node/register 'test/**/*.ts' --skip-project"
@@ -21,6 +22,11 @@
       "name": "Abhishek Kumar",
       "email": "abhishek.kumar251095@gmail.com",
       "url": "https://github.com/abhishek-kumar251095"
+    },
+    {
+      "name": "Divij Tripathi",
+      "email": "divij.tripathi4@gmail.com",
+      "url": "https://github.com/divij123"
     }
   ],
   "license": "MIT",
@@ -30,12 +36,15 @@
   "homepage": "https://github.com/wheredevsdev/abbot#readme",
   "dependencies": {
     "@types/mongodb": "^3.5.26",
-    "mongodb": "^3.6.0"
+    "colors": "^1.4.0",
+    "mongodb": "^3.6.0",
+    "object-hash": "^2.0.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.0.27",
+    "@types/object-hash": "^1.3.4",
     "chai": "^4.2.0",
     "jsdoc": "^3.6.6",
     "mocha": "^8.1.3",

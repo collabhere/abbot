@@ -71,3 +71,16 @@ export const assocPathSet = (target: any, path: string, value: any) => {
 export const assocPathMax = (arr: any[], path: string) => arr.reduce((prev, current) => (assocPathGet(prev, path) > assocPathGet(current, path)) ? prev : current);
 
 export const max = (arr: any[], key: string) => arr.reduce((prev, current) => (prev[key] > current[key]) ? prev : current);
+
+export const findIndexesByVal = (arr: any[], checkValue: string) => {
+	return arr.reduce((acc, val, index) => {
+		if (val == checkValue) {
+			acc.push(index);
+		}
+		return acc;
+	}, []);
+}
+
+export const between = (x: number, min: number, max: number) => (x >= min && x <= max);
+
+export const pipe = (...fns: Function[]) => (x: any) => fns.reduce((v, f) => f(v), x);

@@ -13,7 +13,7 @@
 		"alwaysStrict": true,
 		"lib": [
 			"dom",
-			"es6"
+			"es2019"
 		]
 	},
 	"ts-node": {

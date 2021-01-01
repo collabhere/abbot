@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
-
-import { PrepareOptions } from '../utils/types';
-import { STORE_LOCATION } from "../utils/constants";
+import fs from "fs";
+import { PrepareOptions } from './utils/types';
+import { STORE_LOCATION } from "./utils/constants";
 
 type ListIndexesResult = {
 	name: string;
@@ -38,7 +38,6 @@ async function prepareStore(
 	}
 
 	const client = await createConnection(uri);
-	const fs = import ('fs');
 
 	await fetch(client, collections, fs);
 
@@ -56,7 +55,7 @@ export const Prepare = async (
 const createConnection = async (
 	uri: string
 ): Promise<MongoClient> => {
-	const client = new MongoClient(uri);
+	const client = new MongoClient(uri, { useUnifiedTopology: true });
 	await client.connect();
 	return client;
 }
