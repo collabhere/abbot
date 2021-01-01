@@ -1,5 +1,5 @@
 {
-  "name": "abbot",
+  "name": "@wheredevsdev/abbot",
   "version": "0.8.0",
   "description": "Write better MongoDB queries",
   "main": "dist/index.js",
