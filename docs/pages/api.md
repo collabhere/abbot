@@ -1,6 +1,8 @@
 # API
 
-## `prepare(options)`
+## Prepare
+
+### `prepare(options)`
 
 * Options `<Object>`
 	* mongoUri `<string>`
@@ -8,7 +10,8 @@
 	* collections `<string[]>`
 		* Collections to download indexes for.
 
-## `analyze`
+## `Analyse`
+
 ### `analyse.query(options)`
 
 * Options `<Object>`
@@ -28,7 +31,12 @@
 	* pipeline `<Object[]>`
 		* An array containing MongoDB pipeline stages.
 
-## `report(options)`
+## Report
+
+### `report(options)`
 * Options `<Object>`
 	* reporter `'text'`
 		* The format of the output returned after the analysis. 
+
+---
+<br/>
