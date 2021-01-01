@@ -26,8 +26,8 @@ describe("MatchBeforeGroup", () => {
             expect(fields).to.exist;
             expect(index).to.eq("fieldIndex");
             expect(type).to.eq(SUGGESTION_TYPES.MATCH_BEFORE_GROUP)
-            expect(fields).to.haveOwnProperty('field1');
-            expect(fields).to.not.haveOwnProperty("fieldToCheck");
+            expect(JSON.parse(fields[0])).to.haveOwnProperty("field1");
+            expect(JSON.parse(fields[0])).to.not.haveOwnProperty("fieldToCheck");
         });
 
         matchBeforeGroup(reporter)("fieldIndex", fieldIndex, [[], aggregation]);

@@ -1,3 +1,5 @@
+import { REPORT_SYMBOL } from "../../src/lib/reporter";
+
 export const mockReporter = (funcName: string, callback: any) => {
 
     const throwError = () => {
@@ -5,27 +7,19 @@ export const mockReporter = (funcName: string, callback: any) => {
     }
 
     return {
-        _report: {},
-        setup: function (collection: string, query: any, sort: any, projection: any) { 
-            funcName === 'setup'? callback(collection, query, sort, projection) : throwError();
+        [REPORT_SYMBOL]: { val: 1 } as {[k: string]: any},
+        suggest: function (index: string, suggestion: string, fields?: string[]) {
+            if (funcName === 'suggest') callback(index, suggestion, fields);
+            else throwError();
         },
-        insert: function (index: string, item: any) {
-            funcName === 'insert'? callback(index, item) : throwError();
+        report: function () {
+            if (funcName === 'report') callback();
+            else throwError();
         },
-        suggest: function (index: string, type: string, fields?: string[]) {
-            funcName === 'suggest'? callback(index, type, fields) : throwError();
-        },
-        suggestOR: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
-            funcName === 'suggestOR'? callback(index, ...suggestions) : throwError();
-        },
-        suggestAND: function (index: string, ...suggestions: { type: string; fields: string[]; }[]) {
-            funcName === 'suggestAND'? callback(index, ...suggestions) : throwError();
-        },
-        suggestNewIndex: function (type: string, key: {}) {
-            funcName === 'suggestNewIndex'? callback(type, key) : throwError();
-        },
-        report: function ({ type, format, path }) {
-            funcName === 'suggestAND'? callback(type, format, path) : throwError();
+        context: function (arg: any) {
+            if (funcName === 'report') callback(arg);
+            else throwError();
+            return true;
         }
     }
 }

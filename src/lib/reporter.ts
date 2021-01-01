@@ -7,7 +7,7 @@ import {
 	REPORT_INDEX_PATH, 
 } from "../utils/constants";
 
-const REPORT_SYMBOL = Symbol("__report__");
+export const REPORT_SYMBOL = Symbol("__report__");
 
 export const Reporter = (
 	collection: string, query?: any,

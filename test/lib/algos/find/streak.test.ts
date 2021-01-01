@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { mockReporter } from '../../mock/reporter';
-import { checkStreak } from '../../../src/lib/algos/streak';
+import { mockReporter } from '../../../mock/reporter';
+import { checkStreak } from '../../../../src/lib/algos/find/streak';
 
 describe("CheckStreak", () => {
 
@@ -23,7 +23,7 @@ describe("CheckStreak", () => {
 
             expect(name).to.eq('TEST_INDEX');
             expect(fields).to.be.an('array');
-            expect(type).to.eq('add_field_for_covered_query');
+            expect(type).to.eq('ADD_FIELD_FOR_COVERED_QUERY');
             expect(fields[0]).to.eq('field_4');
         });
 
