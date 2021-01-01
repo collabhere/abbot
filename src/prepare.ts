@@ -15,7 +15,7 @@ export async function fetch(
 	fs: any
 ) {
 	if (!fs.existsSync(STORE_LOCATION)) {
-		await fs.promises.mkdir(STORE_LOCATION/* , { recursive: true } */ /* <- seems unsafe  */);
+		await fs.promises.mkdir(STORE_LOCATION , { recursive: true } );
 	}
 
 	await Promise.all(collections.map(async collection => {
