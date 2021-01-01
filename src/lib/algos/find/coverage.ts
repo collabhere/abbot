@@ -26,7 +26,7 @@ export const coverageForIndex = (reporter: Reporter) => (
 
 	if (unusedFields && unusedFields.length) {
 
-		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELDS_TO_INDEX, unusedFields);
+		reporter.suggest(indexName, SUGGESTION_TYPES.ADD_FIELDS_FOR_INDEX_SUPPORT, unusedFields);
 
 	} else if (projection && Object.keys(projection).length > 0) {
 

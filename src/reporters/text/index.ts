@@ -12,17 +12,17 @@ const esrRuleLink = () => `(Read more about it here: ${blue("https://www.mongodb
 
 function handleSuggestion(suggestion: Suggestion) {
 	switch(suggestion.suggestion) {
-		case SUGGESTION_TYPES.ADD_FIELDS_TO_INDEX: {
+		case SUGGESTION_TYPES.ADD_FIELDS_FOR_INDEX_SUPPORT: {
 			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the index ${yellow(suggestion.index)} with any sorting order to utilize this index better.\n`;
 		}
 		case SUGGESTION_TYPES.CHANGE_RANGE_TO_FOLLOW_ESR: {
-			return `\nFor the index ${yellow(suggestion.index)}, some range fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. ${esrRuleLink()}\n`;
+			return `\nFor the query and index ${yellow(suggestion.index)} combination, some range fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. ${esrRuleLink()}\n`;
 		}
 		case SUGGESTION_TYPES.ADD_FIELD_FOR_COVERED_QUERY: {
-			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the index ${yellow(suggestion.index)} with any sorting order to utilize this index better.\n`;
+			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the query utilize this index (${yellow(suggestion.index)}) better.\n`;
 		}
 		case SUGGESTION_TYPES.CHANGE_SORT_KEYS_TO_FOLLOW_ESR: {
-			return `\nFor the index ${yellow(suggestion.index)}, some sort fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. ${esrRuleLink()}\n`;
+			return `\nFor the index ${yellow(suggestion.index)}, some sort fields (${yellow(suggestion.fields.join(", "))}) in your query do not follow the ESR rule. ${esrRuleLink()}\n`;
 		}
 		case SUGGESTION_TYPES.CREATE_ESR_INDEX: {
 			return `\nNo existing index can support your query. According to the ESR rule ${esrRuleLink()}, here's an index that could help.\n ${suggestion.index}\n`;
