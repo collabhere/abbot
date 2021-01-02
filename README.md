@@ -18,6 +18,7 @@
 ### v1.0.0
 
 - [ ] HTML Reporter
+- [ ] CLI Tool
 - [ ] 100% unit test coverage for algorithms
 
 ### Long term
