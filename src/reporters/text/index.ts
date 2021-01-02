@@ -2,7 +2,7 @@ import { yellow, blue, green, red, bgWhite, white, black, cyan } from "colors";
 
 import { SUGGESTION_TYPES } from "../../utils/constants";
 
-type ReporterState = { txt?: string | undefined };
+type ReporterState = { txt?: string | undefined; hasSuggestions: boolean; truncQuery: string; };
 
 interface Suggestion { suggestion: string; fields?: string[]; index: string }
 
@@ -16,7 +16,7 @@ function handleSuggestion(suggestion: Suggestion) {
 			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the index ${yellow(suggestion.index)} with any sorting order to utilize this index better.\n`;
 		}
 		case SUGGESTION_TYPES.CHANGE_RANGE_TO_FOLLOW_ESR: {
-			return `\nFor the query and index ${yellow(suggestion.index)} combination, some range fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. ${esrRuleLink()}\n`;
+			return `\nFor the query and index ${yellow(suggestion.index)} combination, some range fields (${yellow(suggestion.fields.join(", "))}) do not follow the ESR rule. Consider moving the fields to the right of the index. ${esrRuleLink()}\n`;
 		}
 		case SUGGESTION_TYPES.ADD_FIELD_FOR_COVERED_QUERY: {
 			return `\nAdd the field(s) ${yellow(suggestion.fields.join(", "))} to the query utilize this index (${yellow(suggestion.index)}) better.\n`;
@@ -71,9 +71,10 @@ interface ReporterType {
 export = function() {
 	return {
 		onQuery: (state: ReporterState, info: ReporterType, first: boolean) => {
+			state.hasSuggestions = Boolean(info.suggestions.length > 0);
+			state.truncQuery = truncate(info.query, 256);
 			if (first) { // First call
-				state.txt =`\n\n${cyan(`Query: ${(truncate(info.query, 256))}`)}\n\nConsider the following suggestions to improve this query's performance.\n`;
-				
+				if (!state.txt) state.txt = '';
 				info.suggestions.forEach(s => {
 					state.txt += handleSuggestion(s);
 				});
@@ -84,9 +85,11 @@ export = function() {
 			}
 		},
 		onComplete: (state: ReporterState) => {
-			console.log(cyan.bgBlack("\n\n** ABBOT REPORT **"));
+			console.log(cyan.bgBlack("\n** ABBOT REPORT **"));
 			if (state.txt) {
-				console.log(state.txt);
+				console.log(blue(`\nQuery: ${state.truncQuery}`));
+				if (state.hasSuggestions) console.log(state.txt);
+				else console.log("No suggestions to report. Looks good!");
 			} else {
 				console.log(red("\n\nCould not find anything to report.\n"));
 			}
