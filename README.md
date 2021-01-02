@@ -10,3 +10,18 @@
 ---
 
 <p align="center">Check out our documentation over <a href="https://abbot.wheredevs.dev">here</a>.</p>
+
+---
+
+## Roadmap
+
+### v1.0.0
+
+- [ ] HTML Reporter
+- [ ] 100% unit test coverage for algorithms
+
+### Long term
+
+- [ ] Weights for algorithms to provide impact for suggestions.
+- [ ] Custom reporter API
+- [ ] Cover pending MongoDB operators/API
