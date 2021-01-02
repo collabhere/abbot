@@ -1,6 +1,9 @@
 # Abbot
 
-<p align="center">MongoDB query and index analysis with suggestions to make your queries faster.</p>
+<p align="center">
+	MongoDB query and index analysis with suggestions to make your queries faster. <br />
+	<img src="./docs/pages/img/abbot-example.gif" />
+</p>
 
 ---
 
